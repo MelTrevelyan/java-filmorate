@@ -10,8 +10,8 @@ import java.time.LocalDate;
 public class User {
 
     private Integer id;
-    private String email;
-    private String login;
-    private LocalDate birthday;
+    private final String email;
+    private final String login;
+    private final LocalDate birthday;
     private String name;
 }

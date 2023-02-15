@@ -6,7 +6,9 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -25,8 +27,9 @@ public class UserController {
     public User create(@RequestBody User user) {
         for (User registeredUser : users.values()) {
             if (registeredUser.getEmail().equals(user.getEmail())) {
-                throw new ValidationException("Пользователь с электронной почтой " + user.getEmail()
+                log.warn("Пользователь с электронной почтой " + user.getEmail()
                         + " уже зарегистрирован");
+                throw new ValidationException();
             }
         }
         validateUser(user);
@@ -40,7 +43,8 @@ public class UserController {
     public User update(@RequestBody User user) {
         validateUser(user);
         if (!users.containsKey(user.getId())) {
-            throw new ValidationException("Невозможно обновить пользователя");
+            log.warn("Невозможно обновить пользователя");
+            throw new ValidationException();
         }
         users.put(user.getId(), user);
         log.info("Пользователь с id " + user.getId() + " обновлён");
@@ -62,19 +66,22 @@ public class UserController {
 
     private void validateEmail(String email) {
         if (email == null || !email.contains("@") || email.isBlank()) {
-            throw new ValidationException("Некорректный адрес электронной почты");
+            log.warn("Ошибка валидации пользователя. Некорректный адрес электронной почты");
+            throw new ValidationException();
         }
     }
 
     private void validateLogin(String login) {
         if (login == null || login.isBlank() || login.contains(" ")) {
-            throw new ValidationException("Некорректный логин");
+            log.warn("Ошибка валидации пользователя. Некорректный логин");
+            throw new ValidationException();
         }
     }
 
     private void validateBirthday(LocalDate birthday) {
         if (birthday == null || birthday.isAfter(LocalDate.now())) {
-            throw new ValidationException("Дата рождения не может быть в будущем");
+            log.warn("Ошибка валидации пользователя. Дата рождения не может быть в будущем");
+            throw new ValidationException();
         }
     }
 }

@@ -6,7 +6,9 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -35,7 +37,8 @@ public class FilmController {
     public Film update(@RequestBody Film film) {
         validateFilm(film);
         if (!films.containsKey(film.getId())) {
-            throw new ValidationException("Невозможно обновить фильм");
+            log.warn("Невозможно обновить фильм");
+            throw new ValidationException();
         }
         films.put(film.getId(), film);
         log.info("Фильм с id " + film.getId() + " был обновлён");
@@ -55,26 +58,30 @@ public class FilmController {
 
     private void validateName(String name) {
         if (name == null || name.isBlank() || name.isEmpty()) {
-            throw new ValidationException("Название фильма не может быть пустым");
+            log.warn("Ошибка валидации фильма. Название не может быть пустым");
+            throw new ValidationException();
         }
     }
 
     private void validateDescriptionLength(String description) {
         if (description == null || description.length() > MAX_CHARS_AMOUNT) {
-            throw new ValidationException("Некорректное описание фильма");
+            log.warn("Ошибка валидации фильма. Некорректное описание фильма");
+            throw new ValidationException();
         }
     }
 
     private void validateDate(LocalDate releaseDate) {
         if (releaseDate == null || releaseDate.isBefore(LocalDate.of(1895, 12, 28))
                 || releaseDate.isAfter(LocalDate.now())) {
-            throw new ValidationException("Некорректная дата релиза фильма");
+            log.warn("Ошибка валидации фильма. Некорректная дата релиза фильма");
+            throw new ValidationException();
         }
     }
 
     private void validateDuration(Integer duration) {
         if (duration == null || duration < 0) {
-            throw new ValidationException("Продолжительность фильма должна быть положительной");
+            log.warn("Ошибка валидации фильма. Продолжительность фильма должна быть положительной");
+            throw new ValidationException();
         }
     }
 }
