@@ -14,8 +14,8 @@ import java.util.Map;
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
 
-    private final Map<Integer, Film> films = new HashMap<>();
-    private Integer nextId = 1;
+    private final Map<Long, Film> films = new HashMap<>();
+    private long nextId = 1;
 
     @Override
     public Collection<Film> getFilms() {
@@ -43,7 +43,12 @@ public class InMemoryFilmStorage implements FilmStorage {
         return film;
     }
 
-    private int getNextId() {
+    @Override
+    public Film findFilmById(Long id) {
+        return films.get(id);
+    }
+
+    private long getNextId() {
         return nextId++;
     }
 }

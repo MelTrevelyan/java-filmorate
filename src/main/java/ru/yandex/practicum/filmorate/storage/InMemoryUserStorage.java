@@ -14,8 +14,8 @@ import java.util.Map;
 @Component
 public class InMemoryUserStorage implements UserStorage {
 
-    private int nextId = 1;
-    private final Map<Integer, User> users = new HashMap<>();
+    private long nextId = 1;
+    private final Map<Long, User> users = new HashMap<>();
 
     @Override
     public Collection<User> getUsers() {
@@ -50,7 +50,12 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
-    private int getNextId() {
+    @Override
+    public User findUserById(long id) {
+        return users.get(id);
+    }
+
+    private long getNextId() {
         return nextId++;
     }
 }
