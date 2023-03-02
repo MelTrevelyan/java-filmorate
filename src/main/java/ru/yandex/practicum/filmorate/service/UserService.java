@@ -1,19 +1,25 @@
 package ru.yandex.practicum.filmorate.service;
 
 import com.google.common.collect.Sets;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.UserDoesNotExistException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.validator.UserValidator;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 @Service
 public class UserService {
 
+    private long nextId = 1;
     private final UserStorage userStorage;
 
     @Autowired
@@ -26,10 +32,26 @@ public class UserService {
     }
 
     public User create(User user) {
+        for (User registeredUser : userStorage.getUsers()) {
+            if (registeredUser.getEmail().equals(user.getEmail())) {
+                log.warn("Пользователь с электронной почтой " + user.getEmail()
+                        + " уже зарегистрирован");
+                throw new ValidationException();
+            }
+        }
+        UserValidator.validateUser(user);
+        user.setId(getNextId());
+        log.info("Добавлен новый пользователь");
         return userStorage.create(user);
     }
 
     public User update(User user) {
+        UserValidator.validateUser(user);
+        if (!userStorage.getUsers().contains(user.getId())) {
+            log.warn("Невозможно обновить пользователя");
+            throw new ValidationException();
+        }
+        log.info("Пользователь с id " + user.getId() + " обновлён");
         return userStorage.update(user);
     }
 
@@ -41,10 +63,16 @@ public class UserService {
     }
 
     public void removeFromFriends(long userId, long friendId) {
-        User user = userStorage.findUserById(userId);
-        User friend = userStorage.findUserById(friendId);
-        user.getFriends().remove(friend);
-        friend.getFriends().remove(user);
+        boolean containsUser = !(userStorage.findUserById(userId) == null);
+        boolean containsFriend = !(userStorage.findUserById(friendId) == null);
+        if (containsUser && containsFriend) {
+            User user = userStorage.findUserById(userId);
+            User friend = userStorage.findUserById(friendId);
+            user.getFriends().remove(friend);
+            friend.getFriends().remove(user);
+        } else {
+            throw new UserDoesNotExistException();
+        }
     }
 
     public List<User> getMutualFriends(long userId, long otherUserId) {
@@ -56,5 +84,9 @@ public class UserService {
             mutualFriends.add(userStorage.findUserById(id));
         }
         return mutualFriends;
+    }
+
+    private long getNextId() {
+        return nextId++;
     }
 }
