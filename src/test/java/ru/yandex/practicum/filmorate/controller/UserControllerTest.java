@@ -4,7 +4,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 
@@ -13,12 +15,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class UserControllerTest {
 
+    private final UserStorage userStorage = new InMemoryUserStorage();
+    private final UserService userService = new UserService(userStorage);
     private UserController controller;
 
-//    @BeforeEach
-//    public void beforeEach() {
-//        controller = new UserController(new InMemoryUserStorage());
-//    }
+    @BeforeEach
+    public void beforeEach() {
+        controller = new UserController(userService);
+    }
 
     @Test
     public void shouldPassValidation() {
@@ -99,7 +103,7 @@ public class UserControllerTest {
                 .build());
 
         controller.update(User.builder()
-                .id(1)
+                .id(1L)
                 .login("Mango22")
                 .name("Anna")
                 .email("palmtree@mail.ru")

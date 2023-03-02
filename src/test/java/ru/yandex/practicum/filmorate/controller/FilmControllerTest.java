@@ -5,7 +5,11 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 
@@ -14,12 +18,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class FilmControllerTest {
 
-    private FilmController controller;
+    private final FilmStorage filmStorage = new InMemoryFilmStorage();
+    private final UserStorage userStorage = new InMemoryUserStorage();
+    private final UserService userService = new UserService(userStorage);
+    private final FilmService filmService = new FilmService(filmStorage, userService);
+    FilmController controller;
 
-//    @BeforeEach
-//    public void beforeEach() {
-//        controller = new FilmController(new FilmService(new InMemoryFilmStorage()));
-//    }
+    @BeforeEach
+    public void beforeEach() {
+        controller = new FilmController(filmService);
+    }
 
     @Test
     public void shouldPassValidation() {
@@ -107,7 +115,7 @@ public class FilmControllerTest {
                 .build());
 
         controller.update(Film.builder()
-                .id(1)
+                .id(1L)
                 .name("Зелёная книга")
                 .description("Американская биографическая комедийная драма режиссёра Питера Фаррелли, вышедшая на " +
                         "экраны в 2018 году")
