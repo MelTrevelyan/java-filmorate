@@ -74,8 +74,8 @@ public class UserService {
     }
 
     public void removeFromFriends(long userId, long friendId) {
-        User user = userStorage.findUserById(userId);
-        User friend = userStorage.findUserById(friendId);
+        User user = findUserById(userId);
+        User friend = findUserById(friendId);
         user.getFriends().remove(friend);
         friend.getFriends().remove(user);
         log.info("Пользователи {} и {} теперь не являются друзьями", user, friend);
@@ -83,20 +83,20 @@ public class UserService {
 
     public List<User> getMutualFriends(long userId, long otherUserId) {
         List<User> mutualFriends = new ArrayList<>();
-        User user = userStorage.findUserById(userId);
-        User otherUser = userStorage.findUserById(otherUserId);
+        User user = findUserById(userId);
+        User otherUser = findUserById(otherUserId);
         Set<Long> mutualFriendsIds = Sets.intersection(user.getFriends(), otherUser.getFriends());
         for (Long id : mutualFriendsIds) {
-            mutualFriends.add(userStorage.findUserById(id));
+            mutualFriends.add(findUserById(id));
         }
         return mutualFriends;
     }
 
     public List<User> getAllFriends(long userId) {
         List<User> friends = new ArrayList<>();
-        User user = userStorage.findUserById(userId);
+        User user = findUserById(userId);
         for (Long id : user.getFriends()) {
-            friends.add(userStorage.findUserById(id));
+            friends.add(findUserById(id));
         }
         return friends;
     }

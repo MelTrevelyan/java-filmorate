@@ -56,7 +56,7 @@ public class FilmService {
 
     public void addLike(Long filmId, Long userId) {
         if (userService.findUserById(userId) != null) {
-            filmStorage.findFilmById(filmId).getLikes().add(userId);
+            findFilmById(filmId).getLikes().add(userId);
             log.info("Пользователь с id {} поставил фильму с id {} лайк", userId, filmId);
         }
     }
