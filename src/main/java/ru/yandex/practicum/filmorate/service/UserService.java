@@ -11,7 +11,6 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.validator.UserValidator;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -27,12 +26,12 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
-    public Collection<User> getUsers() {
-        return userStorage.getUsers();
+    public List<User> getUsers() {
+        return List.copyOf(userStorage.getUsers().values());
     }
 
     public User create(User user) {
-        for (User registeredUser : userStorage.getUsers()) {
+        for (User registeredUser : userStorage.getUsers().values()) {
             if (registeredUser.getEmail().equals(user.getEmail())) {
                 log.warn("Пользователь с электронной почтой " + user.getEmail()
                         + " уже зарегистрирован");
@@ -47,32 +46,39 @@ public class UserService {
 
     public User update(User user) {
         UserValidator.validateUser(user);
-        if (!userStorage.getUsers().contains(user.getId())) {
+        if (!userStorage.getUsers().containsKey(user.getId())) {
             log.warn("Невозможно обновить пользователя");
-            throw new ValidationException();
+            throw new UserDoesNotExistException();
         }
-        log.info("Пользователь с id " + user.getId() + " обновлён");
+        log.info("Пользователь с id {} обновлён", user.getId());
         return userStorage.update(user);
     }
 
+    public User findUserById(long id) {
+        User user = userStorage.findUserById(id);
+        if (user == null) {
+            log.warn("Пользователя с id {} не найдено", id);
+            throw new UserDoesNotExistException();
+        }
+        return user;
+    }
+
     public void addFriend(long userId, long friendId) {
-        User user = userStorage.findUserById(userId);
-        User friend = userStorage.findUserById(friendId);
-        user.getFriends().add(friendId);
-        friend.getFriends().add(userId);
+        User user = findUserById(userId);
+        User friend = findUserById(friendId);
+        if (user != null && friend != null) {
+            user.getFriends().add(friendId);
+            friend.getFriends().add(userId);
+            log.info("Пользователи {} и {} теперь друзья", user, friend);
+        }
     }
 
     public void removeFromFriends(long userId, long friendId) {
-        boolean containsUser = !(userStorage.findUserById(userId) == null);
-        boolean containsFriend = !(userStorage.findUserById(friendId) == null);
-        if (containsUser && containsFriend) {
-            User user = userStorage.findUserById(userId);
-            User friend = userStorage.findUserById(friendId);
-            user.getFriends().remove(friend);
-            friend.getFriends().remove(user);
-        } else {
-            throw new UserDoesNotExistException();
-        }
+        User user = userStorage.findUserById(userId);
+        User friend = userStorage.findUserById(friendId);
+        user.getFriends().remove(friend);
+        friend.getFriends().remove(user);
+        log.info("Пользователи {} и {} теперь не являются друзьями", user, friend);
     }
 
     public List<User> getMutualFriends(long userId, long otherUserId) {
@@ -84,6 +90,15 @@ public class UserService {
             mutualFriends.add(userStorage.findUserById(id));
         }
         return mutualFriends;
+    }
+
+    public List<User> getAllFriends(long userId) {
+        List<User> friends = new ArrayList<>();
+        User user = userStorage.findUserById(userId);
+        for (Long id : user.getFriends()) {
+            friends.add(userStorage.findUserById(id));
+        }
+        return friends;
     }
 
     private long getNextId() {
