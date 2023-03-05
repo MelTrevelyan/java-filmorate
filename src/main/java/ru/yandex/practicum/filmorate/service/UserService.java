@@ -46,7 +46,7 @@ public class UserService {
 
     public User update(User user) {
         UserValidator.validateUser(user);
-        if (!userStorage.getUsers().containsKey(user.getId())) {
+        if (userStorage.findUserById(user.getId()) == null) {
             log.warn("Невозможно обновить пользователя");
             throw new UserDoesNotExistException();
         }

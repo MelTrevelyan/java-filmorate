@@ -38,7 +38,7 @@ public class FilmService {
 
     public Film update(Film film) {
         FilmValidator.validateFilm(film);
-        if (!filmStorage.getFilms().containsKey(film.getId())) {
+        if (filmStorage.findFilmById(film.getId()) == null) {
             log.warn("Невозможно обновить фильм");
             throw new FilmDoesNotExistException();
         }
