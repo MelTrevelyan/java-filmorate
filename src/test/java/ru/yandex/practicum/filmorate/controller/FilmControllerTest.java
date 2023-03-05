@@ -11,7 +11,12 @@ import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.time.LocalDate;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -23,6 +28,12 @@ public class FilmControllerTest {
     private final UserService userService = new UserService(userStorage);
     private final FilmService filmService = new FilmService(filmStorage, userService);
     FilmController controller;
+    private static Validator validator;
+
+    static {
+        ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.usingContext().getValidator();
+    }
 
     @BeforeEach
     public void beforeEach() {
@@ -30,7 +41,7 @@ public class FilmControllerTest {
     }
 
     @Test
-    public void shouldPassValidation() {
+    public void shouldCreateFilm() {
         controller.create(Film.builder()
                 .name("Аватар")
                 .description("Путь воды")
@@ -50,7 +61,8 @@ public class FilmControllerTest {
                 .releaseDate(LocalDate.of(2022, 12, 6))
                 .build();
 
-        assertThrows(ValidationException.class, () -> controller.create(film));
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        assertEquals(1, violations.size());
     }
 
     @Test
@@ -65,26 +77,33 @@ public class FilmControllerTest {
                 .releaseDate(LocalDate.of(2022, 12, 6))
                 .build();
 
-        assertThrows(ValidationException.class, () -> controller.create(film));
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        assertEquals(1, violations.size());
     }
 
     @Test
-    public void shouldNotPassReleaseDateValidation() {
+    public void shouldNotPassReleaseDateValidationInThePast() {
         Film film1 = Film.builder()
                 .name("Аватар")
                 .description("Путь воды")
                 .duration(192)
                 .releaseDate(LocalDate.of(1722, 12, 6))
                 .build();
-        Film film2 = Film.builder()
-                .name("Аватар")
-                .description("Ещё один путь воды")
-                .duration(192)
-                .releaseDate(LocalDate.of(2024, 12, 6))
-                .build();
 
         assertThrows(ValidationException.class, () -> controller.create(film1));
-        assertThrows(ValidationException.class, () -> controller.create(film2));
+    }
+
+    @Test
+    public void shouldNotPassReleaseDateValidationInTheFuture() {
+        Film film = Film.builder()
+                .name("Аватар")
+                .description("Путь воды")
+                .duration(192)
+                .releaseDate(LocalDate.of(2025, 12, 6))
+                .build();
+
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        assertEquals(1, violations.size());
     }
 
     @Test
@@ -96,13 +115,8 @@ public class FilmControllerTest {
                 .releaseDate(LocalDate.of(2022, 12, 6))
                 .build();
 
-        assertThrows(ValidationException.class, () -> controller.create(film));
-    }
-
-    @Test
-    public void emptyFilmShouldNotPassValidation() {
-        Film film = Film.builder().build();
-        assertThrows(ValidationException.class, () -> controller.create(film));
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        assertEquals(1, violations.size());
     }
 
     @Test
