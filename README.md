@@ -21,3 +21,10 @@ FROM user AS u
 WHERE u.user_id IN (SELECT f.user_second_id
                     FROM friendship AS f
                     WHERE f.user_first_id = 1);
+
+Пир-ревью:
+Отличная работа, молодец! 
+Диаграмма выполнена в соответствии с поставленным ТЗ,
+с учетом code style. 
+Для наглядности можно было бы таблицу "like" назвать "film_like", 
+что подчеркнуло бы принадлежность Лайка фильму. 
