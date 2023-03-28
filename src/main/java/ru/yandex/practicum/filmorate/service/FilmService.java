@@ -16,13 +16,12 @@ import java.util.stream.Collectors;
 @Service
 public class FilmService {
 
-    @Qualifier("inMemoryFilmStorage")
     private final FilmStorage filmStorage;
     private final UserService userService;
     private long nextId = 1;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserService userService) {
+    public FilmService(@Qualifier("inMemoryFilmStorage") FilmStorage filmStorage, UserService userService) {
         this.userService = userService;
         this.filmStorage = filmStorage;
     }

@@ -20,11 +20,10 @@ import java.util.Set;
 public class UserService {
 
     private long nextId = 1;
-    @Qualifier("inMemoryUserStorage")
     private final UserStorage userStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(@Qualifier("inMemoryUserStorage") UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 

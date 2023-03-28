@@ -40,14 +40,13 @@ public class UserDbStorage implements UserStorage {
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("SELECT * FROM USER WHERE USER_ID = ?", id);
         if (userRows.next()) {
             log.info("Найден пользователь c id = {}", userRows.getLong("USER_ID"));
-            User user = User.builder()
+            return User.builder()
                     .email(userRows.getString("EMAIL"))
                     .login(userRows.getString("LOGIN"))
                     .name(userRows.getString("NAME"))
                     .id(userRows.getLong("USER_ID"))
                     .birthday(Objects.requireNonNull(userRows.getDate("BIRTHDAY")).toLocalDate())
                     .build();
-            return user;
         }
         return null;
     }
