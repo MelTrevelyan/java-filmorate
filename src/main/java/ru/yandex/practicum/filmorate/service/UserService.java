@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.UserDoesNotExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -19,6 +20,7 @@ import java.util.Set;
 public class UserService {
 
     private long nextId = 1;
+    @Qualifier("inMemoryUserStorage")
     private final UserStorage userStorage;
 
     @Autowired

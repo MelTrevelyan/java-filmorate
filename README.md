@@ -21,6 +21,7 @@ FROM user AS u
 WHERE u.user_id IN (SELECT f.user_second_id
                     FROM friendship AS f
                     WHERE f.user_first_id = 1);
+```
 
 Пир-ревью:
 Отличная работа, молодец! 
