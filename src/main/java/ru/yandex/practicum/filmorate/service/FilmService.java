@@ -21,7 +21,7 @@ public class FilmService {
     private long nextId = 1;
 
     @Autowired
-    public FilmService(@Qualifier("inMemoryFilmStorage") FilmStorage filmStorage, UserService userService) {
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, UserService userService) {
         this.userService = userService;
         this.filmStorage = filmStorage;
     }

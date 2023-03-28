@@ -11,7 +11,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @Slf4j
 @Component("userDbStorage")
@@ -36,7 +35,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User create(User user) {
-        String sqlQuery = "INSERT INTO \"USER\" (EMAIL, LOGIN, BIRTHDAY, NAME) VALUES (?, ?, ?)";
+        String sqlQuery = "INSERT INTO \"USER\" (EMAIL, LOGIN, BIRTHDAY, NAME) VALUES (?, ?, ?, ?)";
         jdbcTemplate.update(sqlQuery, user.getEmail(), user.getLogin(), user.getBirthday(), user.getName());
         return user;
     }
@@ -44,7 +43,8 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User update(User user) {
         String SqlQuery = "UPDATE \"USER\" SET EMAIL = ?, LOGIN = ?, BIRTHDAY = ?, NAME = ? WHERE USER_ID = ?";
-        jdbcTemplate.update(SqlQuery, user.getEmail(), user.getLogin(), user.getBirthday(), user.getName());
+        jdbcTemplate.update(SqlQuery, user.getEmail(), user.getLogin(), user.getBirthday(), user.getName(),
+                user.getId());
         return user;
     }
 
@@ -60,7 +60,7 @@ public class UserDbStorage implements UserStorage {
                 .login(rs.getString("LOGIN"))
                 .name(rs.getString("NAME"))
                 .id(rs.getLong("USER_ID"))
-                .birthday(Objects.requireNonNull(rs.getDate("BIRTHDAY")).toLocalDate())
+                .birthday((rs.getDate("BIRTHDAY")).toLocalDate())
                 .build();
     }
 }

@@ -33,5 +33,5 @@ public class Film {
     private final Integer duration;
 
     @NotNull
-    private final Integer ratingId;
+    private final Mpa mpa;
 }
