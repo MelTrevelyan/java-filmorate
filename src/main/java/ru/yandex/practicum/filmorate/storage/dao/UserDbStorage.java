@@ -2,7 +2,9 @@ package ru.yandex.practicum.filmorate.storage.dao;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.UserDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -11,6 +13,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @Component("userDbStorage")
@@ -51,17 +54,34 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User findUserById(long id) {
         String sqlQuery = "SELECT * FROM \"USER\" WHERE USER_ID = ?";
-        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, id);
+        SqlRowSet userRows =jdbcTemplate.queryForRowSet(sqlQuery, id);
+        if (userRows.next()) {
+            User user = User.builder()
+                    .email(userRows.getString("EMAIL"))
+                    .login(userRows.getString("LOGIN"))
+                    .name(userRows.getString("NAME"))
+                    .id(userRows.getLong("USER_ID"))
+                    .birthday((Objects.requireNonNull(userRows.getDate("BIRTHDAY"))).toLocalDate())
+                    .build();
+            log.info("Найден пользователь с id {}", id);
+            return user;
+        }
+        log.warn("Пользователь с id {} не найден", id);
+        throw new UserDoesNotExistException();
     }
 
-    private User mapRowToUser(ResultSet rs, int rowNum) throws SQLException {
-        return User.builder()
-                .email(rs.getString("EMAIL"))
-                .login(rs.getString("LOGIN"))
-                .name(rs.getString("NAME"))
-                .id(rs.getLong("USER_ID"))
-                .birthday((rs.getDate("BIRTHDAY")).toLocalDate())
-                .build();
+    private User mapRowToUser(ResultSet rs, int rowNum) {
+        try {
+            return User.builder()
+                    .email(rs.getString("EMAIL"))
+                    .login(rs.getString("LOGIN"))
+                    .name(rs.getString("NAME"))
+                    .id(rs.getLong("USER_ID"))
+                    .birthday((rs.getDate("BIRTHDAY")).toLocalDate())
+                    .build();
+        } catch (SQLException e) {
+            throw new UserDoesNotExistException();
+        }
     }
 }
 

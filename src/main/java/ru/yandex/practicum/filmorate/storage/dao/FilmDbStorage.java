@@ -2,7 +2,9 @@ package ru.yandex.practicum.filmorate.storage.dao;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.FilmDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
@@ -12,6 +14,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @Component("filmDbStorage")
@@ -55,7 +58,21 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film findFilmById(Long id) {
         String sqlQuery = "SELECT * FROM FILM AS F JOIN RATING AS R ON F.RATING_ID = R.RATING_ID WHERE FILM_ID = ?;";
-        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, id);
+        SqlRowSet filmRows = jdbcTemplate.queryForRowSet(sqlQuery, id);
+        if (filmRows.next()) {
+            Film film = Film.builder()
+                    .id(filmRows.getLong("FILM_ID"))
+                    .name(filmRows.getString("NAME"))
+                    .description(filmRows.getString("DESCRIPTION"))
+                    .releaseDate(Objects.requireNonNull(filmRows.getDate("RELEASE_DATE")).toLocalDate())
+                    .duration(filmRows.getInt("DURATION"))
+                    .mpa(new Mpa(filmRows.getInt("RATING_ID"), filmRows.getString("RATING_NAME")))
+                    .build();
+            log.info("Найден фильм с id {}", id);
+            return film;
+        }
+        log.warn("Фильм с id {} не найден", id);
+        throw new FilmDoesNotExistException();
     }
 
     private Film mapRowToFilm(ResultSet rs, int rowNum) throws SQLException {

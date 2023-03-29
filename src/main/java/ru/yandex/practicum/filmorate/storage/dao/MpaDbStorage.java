@@ -1,7 +1,10 @@
 package ru.yandex.practicum.filmorate.storage.dao;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.MpaDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
@@ -12,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
+@Slf4j
 public class MpaDbStorage implements MpaStorage {
 
     private final JdbcTemplate jdbcTemplate;
@@ -34,7 +38,14 @@ public class MpaDbStorage implements MpaStorage {
     @Override
     public Mpa findMpaById(Integer id) {
         String sqlQuery = "SELECT * FROM RATING WHERE RATING_ID = ?";
-        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToMpa, id);
+        SqlRowSet mpaRows = jdbcTemplate.queryForRowSet(sqlQuery, id);
+        if (mpaRows.next()) {
+            Mpa mpa = new Mpa(mpaRows.getInt("RATING_ID"), mpaRows.getString("RATING_NAME"));
+            log.info("Найден рейтинг с id {}", id);
+            return mpa;
+        }
+        log.warn("Рейтинг с id {} не найден", id);
+        throw new MpaDoesNotExistException();
     }
 
     private Mpa mapRowToMpa(ResultSet rs, int rowNum) throws SQLException {
