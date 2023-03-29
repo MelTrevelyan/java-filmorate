@@ -54,7 +54,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User findUserById(long id) {
         String sqlQuery = "SELECT * FROM \"USER\" WHERE USER_ID = ?";
-        SqlRowSet userRows =jdbcTemplate.queryForRowSet(sqlQuery, id);
+        SqlRowSet userRows = jdbcTemplate.queryForRowSet(sqlQuery, id);
         if (userRows.next()) {
             User user = User.builder()
                     .email(userRows.getString("EMAIL"))
@@ -70,18 +70,44 @@ public class UserDbStorage implements UserStorage {
         throw new UserDoesNotExistException();
     }
 
-    private User mapRowToUser(ResultSet rs, int rowNum) {
-        try {
-            return User.builder()
-                    .email(rs.getString("EMAIL"))
-                    .login(rs.getString("LOGIN"))
-                    .name(rs.getString("NAME"))
-                    .id(rs.getLong("USER_ID"))
-                    .birthday((rs.getDate("BIRTHDAY")).toLocalDate())
-                    .build();
-        } catch (SQLException e) {
-            throw new UserDoesNotExistException();
-        }
+    private User mapRowToUser(ResultSet rs, int rowNum) throws SQLException {
+        return User.builder()
+                .email(rs.getString("EMAIL"))
+                .login(rs.getString("LOGIN"))
+                .name(rs.getString("NAME"))
+                .id(rs.getLong("USER_ID"))
+                .birthday((rs.getDate("BIRTHDAY")).toLocalDate())
+                .build();
+    }
+
+    @Override
+    public void addFriend(long userId, long friendId) {
+        User user = findUserById(userId);
+        User friend = findUserById(friendId);
+        String sqlQuery = "INSERT INTO FRIENDSHIP (USER_FIRST_ID, USER_SECOND_ID, CONFIRMATION) VALUES " +
+                "(?, ?, FALSE);";
+        jdbcTemplate.update(sqlQuery, userId, friendId);
+    }
+
+    @Override
+    public void removeFromFriends(long userId, long friendId) {
+        String sqlQuery = "DELETE FROM FRIENDSHIP WHERE USER_FIRST_ID = ? AND USER_SECOND_ID = ?;";
+        jdbcTemplate.update(sqlQuery, userId, friendId);
+    }
+
+    @Override
+    public List<User> getMutualFriends(long userId, long otherUserId) {
+        String sqlQuery = "SELECT * FROM \"USER\" AS U WHERE U.USER_ID IN (SELECT F.USER_SECOND_ID " +
+                "FROM FRIENDSHIP AS F WHERE F.USER_FIRST_ID = ? " +
+                "INTERSECT SELECT F.USER_SECOND_ID FROM FRIENDSHIP AS F WHERE F.USER_FIRST_ID = ?);";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToUser, userId, otherUserId);
+    }
+
+    @Override
+    public List<User> getAllFriends(long userId) {
+        String sqlQuery = "SELECT * FROM \"USER\" AS U WHERE U.USER_ID IN " +
+                "(SELECT F.USER_SECOND_ID FROM FRIENDSHIP AS F WHERE F.USER_FIRST_ID = ?);";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToUser, userId);
     }
 }
 
