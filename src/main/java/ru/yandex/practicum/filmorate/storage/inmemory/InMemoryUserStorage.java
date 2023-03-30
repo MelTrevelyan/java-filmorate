@@ -51,8 +51,10 @@ public class InMemoryUserStorage implements UserStorage {
     public void removeFromFriends(long userId, long friendId) {
         User user = findUserById(userId);
         User friend = findUserById(friendId);
-        user.getFriends().remove(friend);
-        friend.getFriends().remove(user);
+        if (user != null && friend != null) {
+            user.getFriends().remove(friendId);
+            friend.getFriends().remove(userId);
+        }
     }
 
     @Override
@@ -60,9 +62,11 @@ public class InMemoryUserStorage implements UserStorage {
         List<User> mutualFriends = new ArrayList<>();
         User user = findUserById(userId);
         User otherUser = findUserById(otherUserId);
-        Set<Long> mutualFriendsIds = Sets.intersection(user.getFriends(), otherUser.getFriends());
-        for (Long id : mutualFriendsIds) {
-            mutualFriends.add(findUserById(id));
+        if (user != null && otherUser != null) {
+            Set<Long> mutualFriendsIds = Sets.intersection(user.getFriends(), otherUser.getFriends());
+            for (Long id : mutualFriendsIds) {
+                mutualFriends.add(findUserById(id));
+            }
         }
         return mutualFriends;
     }
@@ -71,8 +75,10 @@ public class InMemoryUserStorage implements UserStorage {
     public List<User> getAllFriends(long userId) {
         List<User> friends = new ArrayList<>();
         User user = findUserById(userId);
-        for (Long id : user.getFriends()) {
-            friends.add(findUserById(id));
+        if (user != null) {
+            for (Long id : user.getFriends()) {
+                friends.add(findUserById(id));
+            }
         }
         return friends;
     }

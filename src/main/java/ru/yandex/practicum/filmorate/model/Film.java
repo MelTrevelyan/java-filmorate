@@ -18,7 +18,7 @@ public class Film {
 
     private final Set<Long> likes = new HashSet<>();
 
-    private final Set<Integer> genres = new HashSet<>();
+    private final Set<Genre> genres = new HashSet<>();
     private Long id;
     @NotEmpty(message = "Название не должно быть пустым")
     private final String name;

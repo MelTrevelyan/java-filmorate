@@ -23,10 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class FilmControllerTest {
 
-    private final FilmStorage filmStorage = new InMemoryFilmStorage();
     private final UserStorage userStorage = new InMemoryUserStorage();
+    private final FilmStorage filmStorage = new InMemoryFilmStorage(userStorage);
     private final UserService userService = new UserService(userStorage);
-    private final FilmService filmService = new FilmService(filmStorage, userService);
+    private final FilmService filmService = new FilmService(filmStorage);
     FilmController controller;
     private static Validator validator;
 
