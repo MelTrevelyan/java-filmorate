@@ -90,7 +90,7 @@ public class FilmControllerTest {
                 .mpa(new Mpa(1, "PG"))
                 .build();
 
-        assertThrows(ValidationException.class, () ->filmService.create(film1));
+        assertThrows(ValidationException.class, () -> filmService.create(film1));
     }
 
     @Test
