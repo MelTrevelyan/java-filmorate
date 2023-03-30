@@ -57,7 +57,7 @@ public class FilmDbStorage implements FilmStorage {
                 jdbcTemplate.update(queryForFilmGenre, film.getId(), genre.getId());
             }
         }
-        return film;
+        return findFilmById(film.getId());
     }
 
     @Override
@@ -74,7 +74,7 @@ public class FilmDbStorage implements FilmStorage {
                 jdbcTemplate.update(queryForUpdateGenre, film.getId(), genre.getId());
             }
         }
-        return film;
+        return findFilmById(film.getId());
     }
 
     @Override
