@@ -1,33 +1,33 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.junit.jupiter.api.BeforeEach;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.inmemory.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.inmemory.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest
+@AutoConfigureTestDatabase
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class FilmControllerTest {
-
-    private final UserStorage userStorage = new InMemoryUserStorage();
-    private final FilmStorage filmStorage = new InMemoryFilmStorage(userStorage);
-    private final UserService userService = new UserService(userStorage);
-    private final FilmService filmService = new FilmService(filmStorage);
-    FilmController controller;
+    private final FilmService filmService;
+    private final UserService userService;
     private static Validator validator;
 
     static {
@@ -35,21 +35,18 @@ public class FilmControllerTest {
         validator = validatorFactory.usingContext().getValidator();
     }
 
-    @BeforeEach
-    public void beforeEach() {
-        controller = new FilmController(filmService);
-    }
-
     @Test
     public void shouldCreateFilm() {
-        controller.create(Film.builder()
-                .name("Аватар")
+        Film film = Film.builder()
+                .name("Акварарк")
                 .description("Путь воды")
                 .duration(192)
                 .releaseDate(LocalDate.of(2022, 12, 6))
-                .build());
+                .mpa(new Mpa(1, "G"))
+                .build();
+        filmService.create(film);
 
-        assertEquals(1, controller.getFilms().size());
+        assertTrue(filmService.getFilms().contains(film));
     }
 
     @Test
@@ -59,6 +56,7 @@ public class FilmControllerTest {
                 .description("Уже не путь воды")
                 .duration(192)
                 .releaseDate(LocalDate.of(2022, 12, 6))
+                .mpa(new Mpa(1, "PG"))
                 .build();
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
@@ -75,6 +73,7 @@ public class FilmControllerTest {
                         " года, но в связи с пандемией коронавируса 2020 года была перенесена на 16 декабря 2022 года.")
                 .duration(192)
                 .releaseDate(LocalDate.of(2022, 12, 6))
+                .mpa(new Mpa(1, "PG"))
                 .build();
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
@@ -88,9 +87,10 @@ public class FilmControllerTest {
                 .description("Путь воды")
                 .duration(192)
                 .releaseDate(LocalDate.of(1722, 12, 6))
+                .mpa(new Mpa(1, "PG"))
                 .build();
 
-        assertThrows(ValidationException.class, () -> controller.create(film1));
+        assertThrows(ValidationException.class, () ->filmService.create(film1));
     }
 
     @Test
@@ -100,6 +100,7 @@ public class FilmControllerTest {
                 .description("Путь воды")
                 .duration(192)
                 .releaseDate(LocalDate.of(2025, 12, 6))
+                .mpa(new Mpa(1, "PG"))
                 .build();
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
@@ -113,6 +114,7 @@ public class FilmControllerTest {
                 .description("Путь воды")
                 .duration(-192)
                 .releaseDate(LocalDate.of(2022, 12, 6))
+                .mpa(new Mpa(1, "PG"))
                 .build();
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
@@ -121,48 +123,153 @@ public class FilmControllerTest {
 
     @Test
     public void shouldUpdateFilm() {
-        controller.create(Film.builder()
+        Film film = Film.builder()
                 .name("Аватар")
                 .description("Путь воды")
                 .duration(192)
                 .releaseDate(LocalDate.of(2022, 12, 6))
-                .build());
+                .mpa(new Mpa(1, "PG"))
+                .build();
+        filmService.create(film);
 
-        controller.update(Film.builder()
-                .id(1L)
+        Film filmUpdate = Film.builder()
+                .id(film.getId())
                 .name("Зелёная книга")
                 .description("Американская биографическая комедийная драма режиссёра Питера Фаррелли, вышедшая на " +
                         "экраны в 2018 году")
                 .duration(130)
                 .releaseDate(LocalDate.of(2018, 11, 21))
-                .build());
+                .mpa(new Mpa(1, "G"))
+                .build();
+        filmService.update(filmUpdate);
 
-        assertEquals(1, controller.getFilms().size());
+        assertEquals(filmUpdate, filmService.findFilmById(film.getId()));
     }
 
     @Test
     public void shouldPassDescriptionValidationWith200Symbols() {
-        controller.create(Film.builder()
+        Film film = Film.builder()
                 .name("Аватар")
                 .description("«Аватар: Путь воды» (англ. Avatar: The Way of Water) — американский " +
                         "научно-фантастический фильм режиссёра и сценариста Джеймса Кэмерона. Является сиквелом " +
                         "фильма «Аватар» 2009 года.Изначально премьера")
                 .duration(192)
                 .releaseDate(LocalDate.of(2022, 12, 6))
-                .build());
+                .mpa(new Mpa(1, "G"))
+                .build();
 
-        assertEquals(1, controller.getFilms().size());
+        filmService.create(film);
+
+        assertTrue(filmService.getFilms().contains(film));
     }
 
     @Test
     public void shouldPassReleaseDateValidation() {
-        controller.create(Film.builder()
+        Film film = Film.builder()
                 .name("Аватар")
                 .description("Путь воды")
                 .duration(192)
                 .releaseDate(LocalDate.of(1895, 12, 28))
-                .build());
+                .mpa(new Mpa(1, "G"))
+                .build();
+        filmService.create(film);
 
-        assertEquals(1, controller.getFilms().size());
+        assertTrue(filmService.getFilms().contains(film));
+    }
+
+    @Test
+    public void shouldFindFilmById() {
+        Film film = Film.builder()
+                .name("Аватар 2")
+                .description("Путь воды")
+                .duration(192)
+                .releaseDate(LocalDate.of(2022, 12, 6))
+                .mpa(new Mpa(1, "G"))
+                .build();
+        filmService.create(film);
+
+        assertEquals(film, filmService.findFilmById(film.getId()));
+    }
+
+    @Test
+    public void shouldAddLike() {
+        User user = User.builder()
+                .login("Iris")
+                .name("Melissa")
+                .email("catcat@mail.ru")
+                .birthday(LocalDate.of(2000, 8, 15))
+                .build();
+        userService.create(user);
+
+        Film film = Film.builder()
+                .name("Форрест Гамп")
+                .description("Жизнь как коробка конфет")
+                .duration(192)
+                .releaseDate(LocalDate.of(1981, 12, 6))
+                .mpa(new Mpa(1, "PG"))
+                .build();
+        filmService.create(film);
+
+        filmService.addLike(film.getId(), user.getId());
+
+        assertEquals(1, filmService.findFilmById(film.getId()).getLikes().size());
+    }
+
+    @Test
+    public void shouldDeleteLike() {
+        User user = User.builder()
+                .login("Iris")
+                .name("Melissa")
+                .email("willow@mail.ru")
+                .birthday(LocalDate.of(2000, 8, 15))
+                .build();
+        userService.create(user);
+
+        Film film = Film.builder()
+                .name("Форрест беги")
+                .description("Жизнь как коробка конфет")
+                .duration(192)
+                .releaseDate(LocalDate.of(1981, 12, 6))
+                .mpa(new Mpa(1, "PG"))
+                .build();
+        filmService.create(film);
+
+        filmService.addLike(film.getId(), user.getId());
+        filmService.deleteLike(film.getId(), user.getId());
+
+        assertEquals(0, film.getLikes().size());
+    }
+
+    @Test
+    public void shouldGetMostPopularFilms() {
+        User user = User.builder()
+                .login("Iris")
+                .name("Melissa")
+                .email("mellow@mail.ru")
+                .birthday(LocalDate.of(2000, 8, 15))
+                .build();
+        userService.create(user);
+
+        User secondUser = User.builder()
+                .login("Iris")
+                .name("Melissa")
+                .email("meow@mail.ru")
+                .birthday(LocalDate.of(2000, 8, 15))
+                .build();
+        userService.create(secondUser);
+
+        Film film = Film.builder()
+                .name("Форрест run")
+                .description("Жизнь как коробка конфет")
+                .duration(192)
+                .releaseDate(LocalDate.of(1981, 12, 6))
+                .mpa(new Mpa(1, "PG"))
+                .build();
+        filmService.create(film);
+
+        filmService.addLike(film.getId(), user.getId());
+        filmService.addLike(film.getId(), secondUser.getId());
+
+        assertEquals(List.of(filmService.findFilmById(film.getId())), filmService.getMostPopularFilms(1));
     }
 }
