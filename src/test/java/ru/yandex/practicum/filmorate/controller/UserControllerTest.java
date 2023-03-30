@@ -190,7 +190,7 @@ public class UserControllerTest {
         User friend = User.builder()
                 .login("Iris")
                 .name("Melissa")
-                .email("catcat@mail.ru")
+                .email("cattycat@mail.ru")
                 .birthday(LocalDate.of(2000, 8, 15))
                 .build();
         userService.create(friend);
