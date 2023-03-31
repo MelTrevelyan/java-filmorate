@@ -8,7 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.MpaService;
 
-import java.util.List;
+import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -21,7 +21,7 @@ public class MpaControllerTest {
 
     @Test
     public void getAllMpa() {
-        List<Mpa> allMpa = mpaService.getAllMpa();
+        Collection<Mpa> allMpa = mpaService.getAllMpa();
 
         assertEquals(5, allMpa.size());
     }

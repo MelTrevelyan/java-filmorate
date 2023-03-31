@@ -7,7 +7,8 @@ import ru.yandex.practicum.filmorate.exception.MpaDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
 
 @Service
 @Slf4j
@@ -19,8 +20,8 @@ public class MpaService {
         this.mpaStorage = mpaStorage;
     }
 
-    public List<Mpa> getAllMpa() {
-        return List.copyOf(mpaStorage.getAllMpa().values());
+    public Collection<Mpa> getAllMpa() {
+        return Collections.unmodifiableCollection(mpaStorage.getAllMpa().values());
     }
 
     public Mpa getMpaById(int id) {

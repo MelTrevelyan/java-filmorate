@@ -8,7 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.service.GenreService;
 
-import java.util.List;
+import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -21,7 +21,7 @@ public class GenreControllerTest {
 
     @Test
     public void getAllGenres() {
-        List<Genre> genres = genreService.getAllGenres();
+        Collection<Genre> genres = genreService.getAllGenres();
 
         assertEquals(6, genres.size());
     }
