@@ -10,6 +10,8 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.validator.UserValidator;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -24,8 +26,8 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
-    public List<User> getUsers() {
-        return List.copyOf(userStorage.getUsers().values());
+    public Collection<User> getUsers() {
+        return Collections.unmodifiableCollection(userStorage.getUsers().values());
     }
 
     public User create(User user) {
@@ -62,8 +64,8 @@ public class UserService {
     }
 
     public void addFriend(long userId, long friendId) {
-       userStorage.addFriend(userId, friendId);
-            log.info("Пользователи с id {} и {} теперь друзья", userId, friendId);
+        userStorage.addFriend(userId, friendId);
+        log.info("Пользователи с id {} и {} теперь друзья", userId, friendId);
     }
 
     public void removeFromFriends(long userId, long friendId) {

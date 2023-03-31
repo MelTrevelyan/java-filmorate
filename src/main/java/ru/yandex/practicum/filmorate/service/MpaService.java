@@ -25,11 +25,6 @@ public class MpaService {
     }
 
     public Mpa getMpaById(int id) {
-        Mpa mpa = mpaStorage.findMpaById(id);
-        if (mpa == null) {
-            log.warn("Рейтинга с id {} не найдено", id);
-            throw new MpaDoesNotExistException();
-        }
-        return mpa;
+        return mpaStorage.findMpaById(id).orElseThrow(MpaDoesNotExistException::new);
     }
 }

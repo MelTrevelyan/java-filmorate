@@ -9,6 +9,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.validator.FilmValidator;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,8 +26,8 @@ public class FilmService {
         this.filmStorage = filmStorage;
     }
 
-    public List<Film> getFilms() {
-        return List.copyOf(filmStorage.getFilms().values());
+    public Collection<Film> getFilms() {
+        return Collections.unmodifiableCollection(filmStorage.getFilms().values());
     }
 
     public Film create(Film film) {
@@ -54,13 +56,13 @@ public class FilmService {
     }
 
     public void addLike(Long filmId, Long userId) {
-            filmStorage.addLike(filmId, userId);
-            log.info("Пользователь с id {} поставил фильму с id {} лайк", userId, filmId);
+        filmStorage.addLike(filmId, userId);
+        log.info("Пользователь с id {} поставил фильму с id {} лайк", userId, filmId);
     }
 
     public void deleteLike(Long filmId, Long userId) {
         filmStorage.deleteLike(filmId, userId);
-            log.info("Лайк пользователя с id {} фильму с id {} удалён", userId, filmId);
+        log.info("Лайк пользователя с id {} фильму с id {} удалён", userId, filmId);
     }
 
     public List<Film> getMostPopularFilms(int count) {

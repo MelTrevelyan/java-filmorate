@@ -25,11 +25,6 @@ public class GenreService {
     }
 
     public Genre getGenreById(int id) {
-        Genre genre = genreStorage.findGenreById(id);
-        if (genre == null) {
-            log.warn("Жанр с id = {} не найден", id);
-            throw new GenreDoesNotExistException();
-        }
-        return genre;
+        return genreStorage.findGenreById(id).orElseThrow(GenreDoesNotExistException::new);
     }
 }
