@@ -104,9 +104,17 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getAllFriends(long userId) {
+        User user = findUserById(userId);
         String sqlQuery = "SELECT * FROM \"USER\" AS U WHERE U.USER_ID IN " +
                 "(SELECT F.USER_SECOND_ID FROM FRIENDSHIP AS F WHERE F.USER_FIRST_ID = ?);";
         return jdbcTemplate.query(sqlQuery, this::mapRowToUser, userId);
+    }
+
+    @Override
+    public void deleteUser(long userId) {
+        User user = findUserById(userId);
+        String sqlQuery = "DELETE FROM \"USER\" WHERE USER_ID = ?;";
+        jdbcTemplate.update(sqlQuery, userId);
     }
 }
 
