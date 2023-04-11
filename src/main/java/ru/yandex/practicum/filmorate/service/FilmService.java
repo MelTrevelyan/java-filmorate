@@ -72,6 +72,10 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
+    public void deleteFilm(Long filmId) {
+        filmStorage.deleteFilm(filmId);
+    }
+
     private long getNextId() {
         return nextId++;
     }

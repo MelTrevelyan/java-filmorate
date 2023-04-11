@@ -29,7 +29,7 @@ public class FilmDbStorage implements FilmStorage {
     private final UserStorage userStorage;
 
     @Autowired
-    public FilmDbStorage(JdbcTemplate jdbcTemplate,@Qualifier("userDbStorage") UserStorage userStorage) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, @Qualifier("userDbStorage") UserStorage userStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.userStorage = userStorage;
     }
@@ -160,6 +160,13 @@ public class FilmDbStorage implements FilmStorage {
         User user = userStorage.findUserById(userId);
         String sqlQuery = "DELETE FROM FILM_LIKE WHERE FILM_ID = ? AND USER_ID = ?;";
         jdbcTemplate.update(sqlQuery, filmId, userId);
+    }
+
+    @Override
+    public void deleteFilm(Long filmId) {
+        Film film = findFilmById(filmId);
+        String sqlQuery = "DELETE FROM FILM WHERE FILM_ID = ?;";
+        jdbcTemplate.update(sqlQuery, filmId);
     }
 }
 
