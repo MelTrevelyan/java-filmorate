@@ -37,10 +37,10 @@ public class FilmControllerTest {
         validator = validatorFactory.usingContext().getValidator();
     }
 
-    @BeforeEach
-    public void init() {
-        filmService.createDirector("director1");
-    }
+//    @BeforeEach
+//    public void init() {
+//        filmService.createDirector("director1");
+//    }
 
     @Test
     public void shouldCreateFilm() {

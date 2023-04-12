@@ -14,7 +14,6 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component("filmDbStorage")
@@ -32,7 +31,8 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Map<Long, Film> getFilms() {
         Map<Long, Film> films = new HashMap<>();
-        String sqlQuery = "SELECT * FROM FILM AS F JOIN RATING AS R ON F.RATING_ID = R.ID;";
+        String sqlQuery = "SELECT F.*, R.RATING_NAME, D.DIRECTOR_NAME FROM FILM AS F JOIN RATING AS R ON F.RATING_ID = R.RATING_ID " +
+                "LEFT JOIN DIRECTOR AS D ON d.DIRECTOR_ID = F.DIRECTOR_ID";
         List<Film> filmsFromDb = jdbcTemplate.query(sqlQuery, this::mapRowToFilm);
         for (Film film : filmsFromDb) {
             films.put(film.getId(), film);
@@ -77,8 +77,9 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film findFilmById(long id) {
-        String sqlQuery = "SELECT * FROM FILM AS F JOIN RATING AS R ON F.RATING_ID = R.ID " +
-                "WHERE FILM_ID = ?;";
+        String sqlQuery = "SELECT F.*, R.RATING_NAME, D.DIRECTOR_NAME FROM FILM AS F JOIN RATING AS R ON F.RATING_ID = R.RATING_ID " +
+                "LEFT JOIN DIRECTOR AS D ON d.DIRECTOR_ID = F.DIRECTOR_ID" +
+                " WHERE FILM_ID = ?;";
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet(sqlQuery, id);
         if (filmRows.next()) {
             Film film = Film.builder()
@@ -88,7 +89,7 @@ public class FilmDbStorage implements FilmStorage {
                     .releaseDate(Objects.requireNonNull(filmRows.getDate("RELEASE_DATE")).toLocalDate())
                     .duration(filmRows.getInt("DURATION"))
                     .mpa(new Mpa(filmRows.getInt("RATING_ID"), filmRows.getString("RATING_NAME")))
-                    .director(getDirector(filmRows.getInt("DIRECTOR_ID")))
+                    .director(Director.builder().id(filmRows.getInt("DIRECTOR_ID")).name(filmRows.getString("DIRECTOR_NAME")).build())
                     .build();
             List<Genre> genresOfFilm = getGenresOfFilm(id);
             List<Integer> likes = getLikesOfFilm(film.getId());
@@ -114,7 +115,7 @@ public class FilmDbStorage implements FilmStorage {
                 .releaseDate(rs.getDate("RELEASE_DATE").toLocalDate())
                 .duration(rs.getInt("DURATION"))
                 .mpa(new Mpa(rs.getInt("RATING_ID"), rs.getString("RATING_NAME")))
-                .director(getDirector(rs.getInt("DIRECTOR_ID")))
+                .director(Director.builder().id(rs.getInt("DIRECTOR_ID")).name(rs.getString("DIRECTOR_NAME")).build())
                 .build();
         log.info("Film = {}", film);
         List<Genre> genresOfFilm = getGenresOfFilm(film.getId());
@@ -172,34 +173,36 @@ public class FilmDbStorage implements FilmStorage {
         String director = arr[0].trim();
         String title;
 
-        String sql = "SELECT f.* FROM (SELECT * FROM FILM JOIN RATING r ON FILM.RATING_ID = r.ID WHERE FILM.NAME LIKE ?) AS f " +
-                "LEFT JOIN FILM_LIKE fl ON f.FILM_ID = fl.FILM_ID GROUP BY f.FILM_ID ORDER BY COUNT(fl.USER_ID) DESC";
-        List<Film> filmList = jdbcTemplate.query(sql, this::mapRowToFilm, queryBuilder.append(query).append("%"));
+        String sql = "SELECT f.*, r.RATING_NAME, d.DIRECTOR_NAME FROM FILM f INNER JOIN RATING r ON r.RATING_ID = f.RATING_ID " +
+                "LEFT JOIN DIRECTOR d ON d.DIRECTOR_ID = f.DIRECTOR_ID LEFT JOIN FILM_LIKE fl ON fl.FILM_ID = f.FILM_ID GROUP BY f.FILM_ID " +
+                "HAVING f.name LIKE ? AND d.DIRECTOR_NAME = ? " +
+                "OR f.name = ? ORDER BY COUNT(fl.USER_ID) DESC";
         if (arr.length > 1) {
             title = arr[1].trim();
             log.info("Title {}", title);
-            return filmList.stream().filter(f -> f.getDirector().getName().equals(director) && f.getName().equals(title)).collect(Collectors.toList());
+            return jdbcTemplate.query(sql, this::mapRowToFilm, queryBuilder.append(query).append("%"), director, title);
         }
+
         title = director;
-        return filmList.stream().filter(f -> f.getDirector().getName().equals(director) || f.getName().equals(title)).collect(Collectors.toList());
+        return jdbcTemplate.query(sql, this::mapRowToFilm, queryBuilder.append(query).append("%"), director, title);
     }
 
-    public Director getDirector(int id) {   //Метод добавлен для корректной работы поиска фильма
-        String sql = "SELECT * FROM DIRECTOR WHERE ID = ?";
-        SqlRowSet directorRows = jdbcTemplate.queryForRowSet(sql, id);
-        if (directorRows.next()) {
-            Director director = Director.builder()
-                    .id(directorRows.getInt("ID"))
-                    .name(directorRows.getString("NAME")).build();
-            log.info("Director {} ", director);
-            return director;
-        }
-        log.error("Режиссер не найден!!");
-        throw new FilmDoesNotExistException();
-    }
+//    public Director getDirector(int id) {   //Метод добавлен для корректной работы поиска фильма
+//        String sql = "SELECT * FROM DIRECTOR WHERE ID = ?";
+//        SqlRowSet directorRows = jdbcTemplate.queryForRowSet(sql, id);
+//        if (directorRows.next()) {
+//            Director director = Director.builder()
+//                    .id(directorRows.getInt("DIRECTOR_ID"))
+//                    .name(directorRows.getString("DIRECTOR_NAME")).build();
+//            log.info("Director {} ", director);
+//            return director;
+//        }
+//        log.error("Режиссер не найден!!");
+//        throw new FilmDoesNotExistException();
+//    }
 
     public void createDirector(String name) {  //Метод добавлен для тестов
-        String sql = "INSERT INTO DIRECTOR (NAME) VALUES (?);";
+        String sql = "INSERT INTO DIRECTOR (DIRECTOR_NAME) VALUES (?);";
         jdbcTemplate.update(sql, name);
     }
 
