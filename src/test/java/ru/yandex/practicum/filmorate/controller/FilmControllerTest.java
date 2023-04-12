@@ -272,4 +272,20 @@ public class FilmControllerTest {
 
         assertEquals(List.of(filmService.findFilmById(film.getId())), filmService.getMostPopularFilms(1));
     }
+
+    @Test
+    public void shouldDeleteFilm() {
+        Film film = Film.builder()
+                .name("Век Адалин")
+                .description("Бессмертие от удара молнии")
+                .duration(192)
+                .releaseDate(LocalDate.of(2010, 12, 6))
+                .mpa(new Mpa(1, "PG"))
+                .build();
+
+        filmService.create(film);
+        filmService.deleteFilm(film.getId());
+
+        assertFalse(filmService.getFilms().contains(film));
+    }
 }
