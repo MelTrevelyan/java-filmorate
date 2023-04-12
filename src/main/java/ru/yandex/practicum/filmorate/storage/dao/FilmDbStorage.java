@@ -198,7 +198,7 @@ public class FilmDbStorage implements FilmStorage {
         throw new FilmDoesNotExistException();
     }
 
-    public void createDirector(String name){  //Метод добавлен для тестов
+    public void createDirector(String name) {  //Метод добавлен для тестов
         String sql = "INSERT INTO DIRECTOR (NAME) VALUES (?);";
         jdbcTemplate.update(sql, name);
     }
