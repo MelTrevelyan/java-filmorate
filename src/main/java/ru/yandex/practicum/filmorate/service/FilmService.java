@@ -55,12 +55,12 @@ public class FilmService {
         return film;
     }
 
-    public void addLike(Long filmId, Long userId) {
+    public void addLike(long filmId, long userId) {
         filmStorage.addLike(filmId, userId);
         log.info("Пользователь с id {} поставил фильму с id {} лайк", userId, filmId);
     }
 
-    public void deleteLike(Long filmId, Long userId) {
+    public void deleteLike(long filmId, long userId) {
         filmStorage.deleteLike(filmId, userId);
         log.info("Лайк пользователя с id {} фильму с id {} удалён", userId, filmId);
     }
@@ -72,7 +72,7 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
-    public void deleteFilm(Long filmId) {
+    public void deleteFilm(long filmId) {
         filmStorage.deleteFilm(filmId);
     }
 
