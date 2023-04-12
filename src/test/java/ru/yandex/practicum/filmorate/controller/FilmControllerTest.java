@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -37,10 +36,6 @@ public class FilmControllerTest {
         validator = validatorFactory.usingContext().getValidator();
     }
 
-//    @BeforeEach
-//    public void init() {
-//        filmService.createDirector("director1");
-//    }
 
     @Test
     public void shouldCreateFilm() {
