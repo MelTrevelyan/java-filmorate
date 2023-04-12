@@ -13,10 +13,7 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -45,11 +42,13 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film create(Film film) {
-        String sqlQuery = "INSERT INTO FILM (NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATING_ID, DIRECTOR) " +
+        String sqlQuery = "INSERT INTO FILM (NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATING_ID, DIRECTOR_ID) " +
                 "VALUES (?, ?, ?, ?, ?, ?);";
         String queryForFilmGenre = "INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES (?, ?);";
+        Director director = Optional.ofNullable(film.getDirector()).orElse(Director.builder().id(1).name("director1").build());
+        log.info("Director {}", director);
         jdbcTemplate.update(sqlQuery, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(),
-                film.getMpa().getId(), film.getDirector().getId());
+                film.getMpa().getId(), director.getId());
         if (!film.getGenres().isEmpty()) {
             for (Genre genre : film.getGenres()) {
                 jdbcTemplate.update(queryForFilmGenre, film.getId(), genre.getId());
@@ -60,12 +59,13 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-        String sqlQuery = "UPDATE FILM SET NAME = ?, DESCRIPTION = ?, RELEASE_DATE = ?, RATING_ID = ?, DURATION = ?, DIRECTOR = ?" +
+        String sqlQuery = "UPDATE FILM SET NAME = ?, DESCRIPTION = ?, RELEASE_DATE = ?, RATING_ID = ?, DURATION = ?, DIRECTOR_ID = ?" +
                 " WHERE FILM_ID = ?;";
         String queryToDeleteFilmGenres = "DELETE FROM FILM_GENRE WHERE FILM_ID = ?;";
         String queryForUpdateGenre = "INSERT INTO FILM_GENRE (FILM_ID, GENRE_ID) VALUES (?, ?);";
+        Director director = Optional.ofNullable(film.getDirector()).orElse(Director.builder().id(1).build());
         jdbcTemplate.update(sqlQuery, film.getName(), film.getDescription(), film.getReleaseDate(),
-                film.getMpa().getId(), film.getDuration(), film.getDirector().getId(), film.getId());
+                film.getMpa().getId(), film.getDuration(), director.getId(), film.getId());
         jdbcTemplate.update(queryToDeleteFilmGenres, film.getId());
         if (!film.getGenres().isEmpty()) {
             for (Genre genre : film.getGenres()) {
@@ -88,7 +88,7 @@ public class FilmDbStorage implements FilmStorage {
                     .releaseDate(Objects.requireNonNull(filmRows.getDate("RELEASE_DATE")).toLocalDate())
                     .duration(filmRows.getInt("DURATION"))
                     .mpa(new Mpa(filmRows.getInt("RATING_ID"), filmRows.getString("RATING_NAME")))
-                    .director(getDirector(filmRows.getInt("DIRECTOR")))
+                    .director(getDirector(filmRows.getInt("DIRECTOR_ID")))
                     .build();
             List<Genre> genresOfFilm = getGenresOfFilm(id);
             List<Integer> likes = getLikesOfFilm(film.getId());
@@ -114,7 +114,7 @@ public class FilmDbStorage implements FilmStorage {
                 .releaseDate(rs.getDate("RELEASE_DATE").toLocalDate())
                 .duration(rs.getInt("DURATION"))
                 .mpa(new Mpa(rs.getInt("RATING_ID"), rs.getString("RATING_NAME")))
-                .director(getDirector(rs.getInt("DIRECTOR")))
+                .director(getDirector(rs.getInt("DIRECTOR_ID")))
                 .build();
         log.info("Film = {}", film);
         List<Genre> genresOfFilm = getGenresOfFilm(film.getId());

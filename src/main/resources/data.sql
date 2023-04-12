@@ -12,10 +12,10 @@ INSERT INTO PUBLIC.GENRE
                   ('Документальный'),
                   ('Боевик');
 
---INSERT INTO PUBLIC.DIRECTOR (NAME) VALUES
---	 ('director1'),
---	 ('director2');
---
+INSERT INTO PUBLIC.DIRECTOR (NAME) VALUES
+	 ('director1'),
+	 ('director2');
+
 --INSERT INTO PUBLIC.FILM (RELEASE_DATE,DURATION,RATING_ID,NAME,DESCRIPTION,DIRECTOR) VALUES
 --	 ('1899-12-09',45, 1, 'name','Description', 1),
 --	 ('2014-04-05',112, 1,'1+1','Пострадав в результате несчастного случая, богатый аристократ Филипп нанимает в помощники человека, который менее всего подходит для этой работы,молодого жителя предместья Дрисса', 2),
