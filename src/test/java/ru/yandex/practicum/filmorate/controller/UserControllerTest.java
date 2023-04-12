@@ -18,8 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -230,5 +229,20 @@ public class UserControllerTest {
         userService.addFriend(user.getId(), friend.getId());
 
         assertEquals(1, userService.getAllFriends(user.getId()).size());
+    }
+
+    @Test
+    public void shouldDeleteUser() {
+        User user = User.builder()
+                .login("Hazel")
+                .name("Melissa")
+                .email("hazelnut@mail.ru")
+                .birthday(LocalDate.of(2000, 8, 15))
+                .build();
+
+        userService.create(user);
+        userService.deleteUser(user.getId());
+
+        assertFalse(userService.getUsers().contains(user));
     }
 }
