@@ -322,4 +322,20 @@ public class FilmControllerTest {
 
         assertEquals("director1", filmService.getFilmsByDirectorOrTitle("Джен", "director1").get(0).getDirector().getName());
     }
+
+    @Test
+    public void shouldDeleteFilm() {
+        Film film = Film.builder()
+                .name("Век Адалин")
+                .description("Бессмертие от удара молнии")
+                .duration(192)
+                .releaseDate(LocalDate.of(2010, 12, 6))
+                .mpa(new Mpa(1, "PG"))
+                .build();
+
+        filmService.create(film);
+        filmService.deleteFilm(film.getId());
+
+        assertFalse(filmService.getFilms().contains(film));
+    }
 }

@@ -41,7 +41,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film findFilmById(Long id) {
+    public Film findFilmById(long id) {
         if (films.containsKey(id)) {
             return films.get(id);
         }
@@ -49,7 +49,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void addLike(Long filmId, Long userId) {
+    public void addLike(long filmId, long userId) {
         Film film = findFilmById(filmId);
         if (film != null && userStorage.findUserById(userId) != null) {
             findFilmById(filmId).getLikes().add(userId);
@@ -57,7 +57,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void deleteLike(Long filmId, Long userId) {
+    public void deleteLike(long filmId, long userId) {
         Film film = findFilmById(filmId);
         if (film != null && userStorage.findUserById(userId) != null) {
             film.getLikes().remove(userId);
@@ -72,5 +72,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public void createDirector(String name) {
 
+    }
+
+    public void deleteFilm(long filmId) {
+        films.remove(filmId);
     }
 }

@@ -76,7 +76,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Film findFilmById(Long id) {
+    public Film findFilmById(long id) {
         String sqlQuery = "SELECT * FROM FILM AS F JOIN RATING AS R ON F.RATING_ID = R.ID " +
                 "WHERE FILM_ID = ?;";
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet(sqlQuery, id);
@@ -149,7 +149,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public void addLike(Long filmId, Long userId) {
+    public void addLike(long filmId, long userId) {
         Film film = findFilmById(filmId);
         User user = userStorage.findUserById(userId);
         String sqlQuery = "INSERT INTO FILM_LIKE (FILM_ID, USER_ID) VALUES (?, ?);";
@@ -157,7 +157,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public void deleteLike(Long filmId, Long userId) {
+    public void deleteLike(long filmId, long userId) {
         Film film = findFilmById(filmId);
         User user = userStorage.findUserById(userId);
         String sqlQuery = "DELETE FROM FILM_LIKE WHERE FILM_ID = ? AND USER_ID = ?;";
@@ -201,6 +201,12 @@ public class FilmDbStorage implements FilmStorage {
     public void createDirector(String name) {  //Метод добавлен для тестов
         String sql = "INSERT INTO DIRECTOR (NAME) VALUES (?);";
         jdbcTemplate.update(sql, name);
+    }
+
+    public void deleteFilm(long filmId) {
+        Film film = findFilmById(filmId);
+        String sqlQuery = "DELETE FROM FILM WHERE FILM_ID = ?;";
+        jdbcTemplate.update(sqlQuery, filmId);
     }
 }
 

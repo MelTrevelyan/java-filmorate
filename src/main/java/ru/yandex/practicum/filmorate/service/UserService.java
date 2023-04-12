@@ -81,6 +81,10 @@ public class UserService {
         return userStorage.getAllFriends(userId);
     }
 
+    public void deleteUser(long userId) {
+        userStorage.deleteUser(userId);
+    }
+
     private long getNextId() {
         return nextId++;
     }

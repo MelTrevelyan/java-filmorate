@@ -61,4 +61,9 @@ public class UserController {
     public List<User> getMutualFriends(@PathVariable long id, @PathVariable long otherId) {
         return userService.getMutualFriends(id, otherId);
     }
+
+    @DeleteMapping(value = "/{userId}")
+    public void deleteUser(@PathVariable long userId) {
+        userService.deleteUser(userId);
+    }
 }
