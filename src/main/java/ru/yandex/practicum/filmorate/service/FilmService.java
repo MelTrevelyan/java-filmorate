@@ -72,6 +72,14 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
+    public List<Film> getFilmsByDirectorOrTitle(String query, String by){
+        return filmStorage.getFilmsByDirectorOrTitle(query, by);
+    }
+
+    public void createDirector(String name){
+        filmStorage.createDirector(name);
+    }
+
     private long getNextId() {
         return nextId++;
     }

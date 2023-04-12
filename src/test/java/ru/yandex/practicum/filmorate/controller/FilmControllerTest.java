@@ -1,11 +1,15 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.junit.Before;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
@@ -35,14 +39,21 @@ public class FilmControllerTest {
         validator = validatorFactory.usingContext().getValidator();
     }
 
+    @BeforeEach
+    public void init(){
+        filmService.createDirector("director1");
+    }
+
     @Test
     public void shouldCreateFilm() {
+
         Film film = Film.builder()
                 .name("Акварарк")
                 .description("Путь воды")
                 .duration(192)
                 .releaseDate(LocalDate.of(2022, 12, 6))
                 .mpa(new Mpa(1, "G"))
+                .director(Director.builder().id(1).name("director1").build())
                 .build();
         filmService.create(film);
 
@@ -57,6 +68,7 @@ public class FilmControllerTest {
                 .duration(192)
                 .releaseDate(LocalDate.of(2022, 12, 6))
                 .mpa(new Mpa(1, "PG"))
+                .director(Director.builder().id(1).name("director1").build())
                 .build();
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
@@ -74,6 +86,7 @@ public class FilmControllerTest {
                 .duration(192)
                 .releaseDate(LocalDate.of(2022, 12, 6))
                 .mpa(new Mpa(1, "PG"))
+                .director(Director.builder().id(1).name("director1").build())
                 .build();
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
@@ -88,6 +101,7 @@ public class FilmControllerTest {
                 .duration(192)
                 .releaseDate(LocalDate.of(1722, 12, 6))
                 .mpa(new Mpa(1, "PG"))
+                .director(Director.builder().id(1).name("director1").build())
                 .build();
 
         assertThrows(ValidationException.class, () -> filmService.create(film1));
@@ -101,6 +115,7 @@ public class FilmControllerTest {
                 .duration(192)
                 .releaseDate(LocalDate.of(2025, 12, 6))
                 .mpa(new Mpa(1, "PG"))
+                .director(Director.builder().id(1).name("director1").build())
                 .build();
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
@@ -115,6 +130,7 @@ public class FilmControllerTest {
                 .duration(-192)
                 .releaseDate(LocalDate.of(2022, 12, 6))
                 .mpa(new Mpa(1, "PG"))
+                .director(Director.builder().id(1).name("director1").build())
                 .build();
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
@@ -123,12 +139,14 @@ public class FilmControllerTest {
 
     @Test
     public void shouldUpdateFilm() {
+        filmService.createDirector("director1");
         Film film = Film.builder()
                 .name("Аватар")
                 .description("Путь воды")
                 .duration(192)
                 .releaseDate(LocalDate.of(2022, 12, 6))
                 .mpa(new Mpa(1, "PG"))
+                .director(Director.builder().id(1).name("director1").build())
                 .build();
         filmService.create(film);
 
@@ -140,6 +158,7 @@ public class FilmControllerTest {
                 .duration(130)
                 .releaseDate(LocalDate.of(2018, 11, 21))
                 .mpa(new Mpa(1, "G"))
+                .director(Director.builder().id(1).name("director1").build())
                 .build();
         filmService.update(filmUpdate);
 
@@ -156,6 +175,7 @@ public class FilmControllerTest {
                 .duration(192)
                 .releaseDate(LocalDate.of(2022, 12, 6))
                 .mpa(new Mpa(1, "G"))
+                .director(Director.builder().id(1).name("director1").build())
                 .build();
 
         filmService.create(film);
@@ -171,6 +191,7 @@ public class FilmControllerTest {
                 .duration(192)
                 .releaseDate(LocalDate.of(1895, 12, 28))
                 .mpa(new Mpa(1, "G"))
+                .director(Director.builder().id(1).name("director1").build())
                 .build();
         filmService.create(film);
 
@@ -185,6 +206,7 @@ public class FilmControllerTest {
                 .duration(192)
                 .releaseDate(LocalDate.of(2022, 12, 6))
                 .mpa(new Mpa(1, "G"))
+                .director(Director.builder().id(1).name("director1").build())
                 .build();
         filmService.create(film);
 
@@ -207,6 +229,7 @@ public class FilmControllerTest {
                 .duration(192)
                 .releaseDate(LocalDate.of(1981, 12, 6))
                 .mpa(new Mpa(1, "PG"))
+                .director(Director.builder().id(1).name("director1").build())
                 .build();
         filmService.create(film);
 
@@ -231,6 +254,7 @@ public class FilmControllerTest {
                 .duration(192)
                 .releaseDate(LocalDate.of(1981, 12, 6))
                 .mpa(new Mpa(1, "PG"))
+                .director(Director.builder().id(1).name("director1").build())
                 .build();
         filmService.create(film);
 
@@ -264,6 +288,7 @@ public class FilmControllerTest {
                 .duration(192)
                 .releaseDate(LocalDate.of(1981, 12, 6))
                 .mpa(new Mpa(1, "PG"))
+                .director(Director.builder().id(1).name("director1").build())
                 .build();
         filmService.create(film);
 
@@ -271,5 +296,32 @@ public class FilmControllerTest {
         filmService.addLike(film.getId(), secondUser.getId());
 
         assertEquals(List.of(filmService.findFilmById(film.getId())), filmService.getMostPopularFilms(1));
+    }
+
+    @Test
+    public void getFilmsByDirectorOrTitle() {
+        User user = User.builder()
+                .login("Iris")
+                .name("Melissa")
+                .email("mello@mail.ru")
+                .birthday(LocalDate.of(2000, 8, 15))
+                .build();
+        userService.create(user);
+
+
+        Film film = Film.builder()
+                .name("Джентльмены")
+                .description("Наркобарон хочет уйти на покой, но криминальный мир не отпускает. " +
+                        "Успешное возвращение Гая Ричи к корням")
+                .duration(192)
+                .releaseDate(LocalDate.of(2022, 03, 7))
+                .mpa(new Mpa(1, "PG"))
+                .director(Director.builder().id(1).name("director1").build())
+                .build();
+        filmService.create(film);
+
+        filmService.addLike(film.getId(), user.getId());
+
+        assertEquals("director1", filmService.getFilmsByDirectorOrTitle("Джен", "director1").get(0).getDirector().getName());
     }
 }

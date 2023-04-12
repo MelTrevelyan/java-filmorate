@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component("inMemoryFilmStorage")
@@ -61,5 +62,15 @@ public class InMemoryFilmStorage implements FilmStorage {
         if (film != null && userStorage.findUserById(userId) != null) {
             film.getLikes().remove(userId);
         }
+    }
+
+    @Override
+    public List<Film> getFilmsByDirectorOrTitle(String query, String by) {
+        return null;
+    }
+
+    @Override
+    public void createDirector(String name) {
+
     }
 }
