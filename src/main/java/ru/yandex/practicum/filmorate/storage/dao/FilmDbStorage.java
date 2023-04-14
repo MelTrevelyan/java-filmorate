@@ -177,29 +177,16 @@ public class FilmDbStorage implements FilmStorage {
                 "LEFT JOIN DIRECTOR d ON d.DIRECTOR_ID = f.DIRECTOR_ID LEFT JOIN FILM_LIKE fl ON fl.FILM_ID = f.FILM_ID GROUP BY f.FILM_ID " +
                 "HAVING f.name LIKE ? AND d.DIRECTOR_NAME = ? " +
                 "OR f.name = ? ORDER BY COUNT(fl.USER_ID) DESC";
+        queryBuilder = queryBuilder.append(query).append("%");
         if (arr.length > 1) {
             title = arr[1].trim();
             log.info("Title {}", title);
-            return jdbcTemplate.query(sql, this::mapRowToFilm, queryBuilder.append(query).append("%"), director, title);
+            return jdbcTemplate.query(sql, this::mapRowToFilm, queryBuilder, director, title);
         }
 
         title = director;
-        return jdbcTemplate.query(sql, this::mapRowToFilm, queryBuilder.append(query).append("%"), director, title);
+        return jdbcTemplate.query(sql, this::mapRowToFilm, queryBuilder, director, title);
     }
-
-//    public Director getDirector(int id) {   //Метод добавлен для корректной работы поиска фильма
-//        String sql = "SELECT * FROM DIRECTOR WHERE ID = ?";
-//        SqlRowSet directorRows = jdbcTemplate.queryForRowSet(sql, id);
-//        if (directorRows.next()) {
-//            Director director = Director.builder()
-//                    .id(directorRows.getInt("DIRECTOR_ID"))
-//                    .name(directorRows.getString("DIRECTOR_NAME")).build();
-//            log.info("Director {} ", director);
-//            return director;
-//        }
-//        log.error("Режиссер не найден!!");
-//        throw new FilmDoesNotExistException();
-//    }
 
     public void createDirector(String name) {  //Метод добавлен для тестов
         String sql = "INSERT INTO DIRECTOR (DIRECTOR_NAME) VALUES (?);";
