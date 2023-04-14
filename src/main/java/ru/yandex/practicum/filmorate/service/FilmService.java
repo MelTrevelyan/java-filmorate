@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmDoesNotExistException;
+import ru.yandex.practicum.filmorate.model.EventOperation;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.validator.FilmValidator;
@@ -19,11 +21,14 @@ import java.util.stream.Collectors;
 public class FilmService {
 
     private final FilmStorage filmStorage;
+
+    private final EventService eventService;
     private long nextId = 1;
 
     @Autowired
-    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage) {
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, EventService eventService) {
         this.filmStorage = filmStorage;
+        this.eventService = eventService;
     }
 
     public Collection<Film> getFilms() {
@@ -57,6 +62,7 @@ public class FilmService {
 
     public void addLike(long filmId, long userId) {
         filmStorage.addLike(filmId, userId);
+        eventService.addEvent(userId, EventType.LIKE, EventOperation.ADD, filmId);
         log.info("Пользователь с id {} поставил фильму с id {} лайк", userId, filmId);
     }
 
