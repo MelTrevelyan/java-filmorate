@@ -17,7 +17,7 @@ public interface FilmStorage {
 
     void addLike(long filmId, long userId);
 
-    List<Film> getFilmsByDirectorOrTitle(String query, String by);
+    List<Film> getFilmsByDirectorOrTitle(String query, String director, String title);
 
     void createDirector(String name);
 

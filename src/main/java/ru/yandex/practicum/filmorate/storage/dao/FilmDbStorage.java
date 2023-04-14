@@ -166,26 +166,19 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getFilmsByDirectorOrTitle(String query, String by) {
-        log.info("Query {} by {} ", query, by);
-        StringBuilder queryBuilder = new StringBuilder("%");
-        String[] arr = by.split(",");
-        String director = arr[0].trim();
-        String title;
+    public List<Film> getFilmsByDirectorOrTitle(String query, String director, String title) {
+        log.info("Query = {} director = {} title = {}", query, director, title);
 
-        String sql = "SELECT f.*, r.RATING_NAME, d.DIRECTOR_NAME FROM FILM f INNER JOIN RATING r ON r.RATING_ID = f.RATING_ID " +
-                "LEFT JOIN DIRECTOR d ON d.DIRECTOR_ID = f.DIRECTOR_ID LEFT JOIN FILM_LIKE fl ON fl.FILM_ID = f.FILM_ID GROUP BY f.FILM_ID " +
-                "HAVING f.name LIKE ? AND d.DIRECTOR_NAME = ? " +
-                "OR f.name = ? ORDER BY COUNT(fl.USER_ID) DESC";
-        queryBuilder = queryBuilder.append(query).append("%");
-        if (arr.length > 1) {
-            title = arr[1].trim();
-            log.info("Title {}", title);
-            return jdbcTemplate.query(sql, this::mapRowToFilm, queryBuilder, director, title);
+        if (!title.isEmpty() && !director.isEmpty()) {
+            log.info("Find by title or director >>>>");
+            return getFilmsByDirectorOrTitle(query);
         }
-
-        title = director;
-        return jdbcTemplate.query(sql, this::mapRowToFilm, queryBuilder, director, title);
+        if (title.isEmpty()) {
+            log.info("Find by director>>>>");
+            return getFilmsByDirector(query);
+        }
+        log.info("Find by title>>>>");
+        return getFilmsByTitle(query);
     }
 
     public void createDirector(String name) {  //Метод добавлен для тестов
@@ -197,6 +190,27 @@ public class FilmDbStorage implements FilmStorage {
         Film film = findFilmById(filmId);
         String sqlQuery = "DELETE FROM FILM WHERE FILM_ID = ?;";
         jdbcTemplate.update(sqlQuery, filmId);
+    }
+
+    private List<Film> getFilmsByDirector(String query) {
+        String sql = "SELECT f.*, r.RATING_NAME, d.DIRECTOR_NAME FROM FILM f INNER JOIN RATING r ON r.RATING_ID = f.RATING_ID " +
+                "LEFT JOIN DIRECTOR d ON d.DIRECTOR_ID = f.DIRECTOR_ID LEFT JOIN FILM_LIKE fl ON fl.FILM_ID = f.FILM_ID GROUP BY f.FILM_ID " +
+                "HAVING d.DIRECTOR_NAME LIKE ? ORDER BY COUNT(fl.USER_ID) DESC";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, query);
+    }
+
+    private List<Film> getFilmsByTitle(String query) {
+        String sql = "SELECT f.*, r.RATING_NAME, d.DIRECTOR_NAME FROM FILM f INNER JOIN RATING r ON r.RATING_ID = f.RATING_ID " +
+                "LEFT JOIN DIRECTOR d ON d.DIRECTOR_ID = f.DIRECTOR_ID LEFT JOIN FILM_LIKE fl ON fl.FILM_ID = f.FILM_ID GROUP BY f.FILM_ID " +
+                "HAVING f.NAME LIKE ? ORDER BY COUNT(fl.USER_ID) DESC";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, query);
+    }
+
+    private List<Film> getFilmsByDirectorOrTitle(String query) {
+        String sql = "SELECT f.*, r.RATING_NAME, d.DIRECTOR_NAME FROM FILM f INNER JOIN RATING r ON r.RATING_ID = f.RATING_ID " +
+                "LEFT JOIN DIRECTOR d ON d.DIRECTOR_ID = f.DIRECTOR_ID LEFT JOIN FILM_LIKE fl ON fl.FILM_ID = f.FILM_ID GROUP BY f.FILM_ID " +
+                "HAVING d.DIRECTOR_NAME LIKE ? OR f.NAME LIKE ? ORDER BY COUNT(fl.USER_ID) DESC";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, query, query);
     }
 }
 

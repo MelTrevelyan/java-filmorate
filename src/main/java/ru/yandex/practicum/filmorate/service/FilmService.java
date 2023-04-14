@@ -9,9 +9,11 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.validator.FilmValidator;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -73,7 +75,16 @@ public class FilmService {
     }
 
     public List<Film> getFilmsByDirectorOrTitle(String query, String by) {
-        return filmStorage.getFilmsByDirectorOrTitle(query, by);
+
+        AtomicReference<String> director = new AtomicReference<>("");
+        AtomicReference<String> title = new AtomicReference<>("");
+        Arrays.stream(by.split(",")).forEach(q -> {
+            if (q.trim().equals("director")) director.set("director");
+            if (q.trim().equals("title")) title.set("title");
+        });
+        StringBuilder queryBuilder = new StringBuilder("%");
+        queryBuilder.append(query).append("%");
+        return filmStorage.getFilmsByDirectorOrTitle(queryBuilder.toString(), director.get(), title.get());
     }
 
     public void createDirector(String name) {
