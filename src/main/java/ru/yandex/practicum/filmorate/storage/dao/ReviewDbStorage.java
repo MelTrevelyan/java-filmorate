@@ -32,7 +32,7 @@ public class ReviewDbStorage implements ReviewStorage {
             "FROM REVIEW_LIKE WHERE REVIEW_ID = ?) - (SELECT COUNT(REVIEW_ID) FROM REVIEW_DISLIKE " +
             "WHERE REVIEW_ID = ?)) WHERE REVIEW_ID = ?;";
 
-    public ReviewDbStorage(JdbcTemplate jdbcTemplate, @Qualifier("filmDbStorage")  FilmStorage filmStorage,
+    public ReviewDbStorage(JdbcTemplate jdbcTemplate, @Qualifier("filmDbStorage") FilmStorage filmStorage,
                            @Qualifier("userDbStorage") UserStorage userStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.filmStorage = filmStorage;
@@ -48,7 +48,7 @@ public class ReviewDbStorage implements ReviewStorage {
                 "(?, ?, ?, ?, ?);";
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con
-                    .prepareStatement(sqlQuery, new String[] {"review_id"});
+                    .prepareStatement(sqlQuery, new String[]{"review_id"});
             ps.setString(1, review.getContent());
             ps.setBoolean(2, review.getIsPositive());
             ps.setLong(3, review.getUserId());
@@ -57,6 +57,7 @@ public class ReviewDbStorage implements ReviewStorage {
             return ps;
         }, keyHolder);
         review.setReviewId((Objects.requireNonNull(keyHolder.getKey()).longValue()));
+        setRightUseful(review.getReviewId());
         return findReviewById(review.getReviewId());
     }
 
@@ -65,6 +66,7 @@ public class ReviewDbStorage implements ReviewStorage {
         String sqlQuery = "UPDATE REVIEW SET CONTENT = ?, IS_POSITIVE = ?, USEFUL = ? WHERE REVIEW_ID = ?;";
         jdbcTemplate.update(sqlQuery, review.getContent(), review.getIsPositive(), review.getUseful(),
                 review.getReviewId());
+        setRightUseful(review.getReviewId());
         return findReviewById(review.getReviewId());
     }
 
@@ -121,7 +123,7 @@ public class ReviewDbStorage implements ReviewStorage {
         User user = userStorage.findUserById(userId);
         String queryToAddLike = "INSERT INTO REVIEW_LIKE (REVIEW_ID, USER_ID) VALUES (?, ?);";
         jdbcTemplate.update(queryToAddLike, reviewId, userId);
-        jdbcTemplate.update(QUERY_TO_SET_USEFUL, reviewId, reviewId, reviewId);
+        setRightUseful(reviewId);
     }
 
     @Override
@@ -130,7 +132,7 @@ public class ReviewDbStorage implements ReviewStorage {
         User user = userStorage.findUserById(userId);
         String queryToAddDislike = "INSERT INTO REVIEW_DISLIKE (REVIEW_ID, USER_ID) VALUES (?, ?);";
         jdbcTemplate.update(queryToAddDislike, reviewId, userId);
-        jdbcTemplate.update(QUERY_TO_SET_USEFUL, reviewId, reviewId, reviewId);
+        setRightUseful(reviewId);
     }
 
     @Override
@@ -139,7 +141,7 @@ public class ReviewDbStorage implements ReviewStorage {
         User user = userStorage.findUserById(userId);
         String queryToDeleteLike = "DELETE FROM REVIEW_LIKE WHERE REVIEW_ID = ? AND USER_ID = ?";
         jdbcTemplate.update(queryToDeleteLike, reviewId, userId);
-        jdbcTemplate.update(QUERY_TO_SET_USEFUL, reviewId, reviewId, reviewId);
+        setRightUseful(reviewId);
     }
 
     @Override
@@ -148,6 +150,10 @@ public class ReviewDbStorage implements ReviewStorage {
         User user = userStorage.findUserById(userId);
         String queryToDeleteDislike = "DELETE FROM REVIEW_DISLIKE WHERE REVIEW_ID = ? AND USER_ID = ?";
         jdbcTemplate.update(queryToDeleteDislike, reviewId, userId);
+        setRightUseful(reviewId);
+    }
+
+    private void setRightUseful(long reviewId) {
         jdbcTemplate.update(QUERY_TO_SET_USEFUL, reviewId, reviewId, reviewId);
     }
 }

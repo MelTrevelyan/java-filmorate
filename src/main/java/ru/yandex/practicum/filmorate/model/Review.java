@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.Builder;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -14,6 +15,7 @@ public class Review {
 
 
     private long reviewId;
+    @Length(max = 200, message = "Максимальная длина отзыва — 200 символов")
     @NotEmpty
     private final String content;
     @NotNull
