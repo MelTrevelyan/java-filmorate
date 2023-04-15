@@ -262,7 +262,49 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getRecommendations(long userId) {
-        return null;
+        /*
+        Описание запроса:
+        Подзапрос (1) - Найти id пользователей, с максимальным количеством пересечения по лайкам:
+        Объединям таблицу FILM_LIKE с самой собой, делаем right join
+        и оставляем справа только id данного пользователя, слева id всех пользователей, кроме нашего и null.
+        Получается такая таблица: FL1.user_id | film_id | FL2.user_id
+        Таким образом в FL1.user_id получаются id всех пользователей, которые лайкали такие же фильмы, что и данный.
+        Группируем пользователей по id, сортируем по частоте этих id
+        (то есть в начале списка будут пользователи, у которых наиболее совпадают лайки с данным).
+        Выбираем первых трех из этих пользователей
+
+        Подзапрос (2):
+        Находим id фильмов, которые лайкнули найденные пользователи
+
+        Подзапрос (3):
+        Находим id фильмов, которые лайкнул данный пользователь
+
+        Запрос (4):
+        Находим фильмы, c id, которые есть в списке из (2), но нет в списке из (3).
+        (То есть те, которые лайкали найденные пользователи, на не лайкал данный)
+         */
+        String sql =
+                "SELECT * FROM FILM F " + //(4)
+                "JOIN RATING R ON F.RATING_ID = R.RATING_ID " +
+                "WHERE F.FILM_ID IN (" +
+                    "SELECT FILM_ID FROM FILM_LIKE " + //(2)
+                    "WHERE USER_ID IN (" +
+                        "SELECT FL1.USER_ID FROM FILM_LIKE FL1 " + //(1)
+                        "RIGHT JOIN FILM_LIKE FL2 ON FL2.FILM_ID = FL1.FILM_ID " +
+                        "GROUP BY FL1.USER_ID, FL2.USER_ID " +
+                        "HAVING FL1.USER_ID IS NOT NULL AND " +
+                            "FL1.USER_ID != ? AND " +
+                            "FL2.USER_ID = ? " +
+                        "ORDER BY COUNT(FL1.USER_ID) DESC " +
+                        "LIMIT 3 " +
+                    ") " +
+                    "AND FILM_ID NOT IN (" +
+                        "SELECT FILM_ID FROM FILM_LIKE " + //(3)
+                        "WHERE USER_ID = ?" +
+                    ")" +
+                ")";
+
+        return jdbcTemplate.query(sql, this::mapRowToFilm, userId, userId, userId);
     }
 }
 
