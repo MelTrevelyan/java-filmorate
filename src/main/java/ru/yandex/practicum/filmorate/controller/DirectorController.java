@@ -24,7 +24,7 @@ public class DirectorController {
     }
 
     @GetMapping("/directors/{id}")
-    public Director getDirectorById(@PathVariable int id){
+    public Director getDirectorById(@PathVariable int id) {
         return directorService.getDirectorById(id);
     }
 

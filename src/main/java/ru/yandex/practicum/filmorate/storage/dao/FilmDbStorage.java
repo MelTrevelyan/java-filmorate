@@ -123,7 +123,7 @@ public class FilmDbStorage implements FilmStorage {
         throw new FilmDoesNotExistException();
     }
 
-    public Optional<List<Film>>  getFilmsByDirectorIdSortedByYearOrLikes(int id, String sortBy) {
+    public Optional<List<Film>> getFilmsByDirectorIdSortedByYearOrLikes(int id, String sortBy) {
         try {
             directorStorage.getDirectorById(id);
             String sql;

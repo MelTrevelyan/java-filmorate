@@ -18,7 +18,6 @@ public class Film {
     @Length(max = 200, message = "Максимальная длина описания — 200 символов")
     @NotNull
     private final String description;
-    //@Past(message = "Дата релиза должна быть в прошлом")
     @NotNull
     private final LocalDate releaseDate;
     @Positive(message = "Продолжительность фильма не может быть отрицательной")
