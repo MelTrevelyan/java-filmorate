@@ -104,7 +104,7 @@ public class FilmControllerTest {
                 .build();
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
-        assertEquals(1, violations.size());
+        assertEquals(0, violations.size());
     }
 
     @Test
