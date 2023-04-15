@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 
 import java.util.List;
@@ -21,7 +20,7 @@ public class DirectorService {
         return directorDBStorage.getAllDirectors();
     }
 
-    public Director getDirectorById(int id){
+    public Director getDirectorById(int id) {
         return directorDBStorage.getDirectorById(id);
     }
 
