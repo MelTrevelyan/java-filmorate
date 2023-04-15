@@ -259,5 +259,10 @@ public class FilmDbStorage implements FilmStorage {
                 "HAVING LOWER(d.DIRECTOR_NAME) LIKE ? OR LOWER(f.NAME) LIKE ? ORDER BY COUNT(fl.USER_ID) DESC";
         return jdbcTemplate.query(sql, this::mapRowToFilm, query, query);
     }
+
+    @Override
+    public List<Film> getRecommendations(long userId) {
+        return null;
+    }
 }
 

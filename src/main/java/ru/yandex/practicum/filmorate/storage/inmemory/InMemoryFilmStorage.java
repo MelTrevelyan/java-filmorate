@@ -77,4 +77,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     public List<Film> getFilmsByDirectorIdSortedByYearOrLikes(int id, String sortBy) {
         return new ArrayList<>();
     }
+
+    @Override
+    public List<Film> getRecommendations(long userId) {
+        return null; //inmemory больше не поддерживаем, поэтому просто заглушка
+    }
 }
