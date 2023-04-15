@@ -40,8 +40,14 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleDirectorNotFound(DirectorNotFoundException e) {
+        return new ErrorResponse("Режиссер не найден.");
+    }
+
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleUnknownException(Throwable e) {
-        return new ErrorResponse("Произошла непредвиденная ошибка.");
+        return new ErrorResponse(e.getMessage());
     }
 }

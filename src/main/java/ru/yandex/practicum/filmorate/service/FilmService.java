@@ -4,6 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import ru.yandex.practicum.filmorate.exception.FilmDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
@@ -12,6 +15,7 @@ import ru.yandex.practicum.filmorate.validator.FilmValidator;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -74,6 +78,12 @@ public class FilmService {
 
     public void deleteFilm(long filmId) {
         filmStorage.deleteFilm(filmId);
+    }
+
+    @GetMapping("/films/director/{directorId}")
+    public Optional<List<Film>> getFilmsByDirectorIdSortedByYearOrLikes(@PathVariable int directorId,
+                                                                        @RequestParam String sortBy) {
+        return filmStorage.getFilmsByDirectorIdSortedByYearOrLikes(directorId, sortBy);
     }
 
     private long getNextId() {
