@@ -198,15 +198,15 @@ public class FilmControllerTest {
     @Test
     public void shouldAddLike() {
         User user = User.builder()
-                .login("Iris")
+                .login("Sweet")
                 .name("Melissa")
-                .email("catcat@mail.ru")
+                .email("Sweet@mail.ru")
                 .birthday(LocalDate.of(2000, 8, 15))
                 .build();
         userService.create(user);
 
         Film film = Film.builder()
-                .name("Форрест Гамп")
+                .name("Форрест Гамп1")
                 .description("Жизнь как коробка конфет")
                 .duration(192)
                 .releaseDate(LocalDate.of(1981, 12, 6))

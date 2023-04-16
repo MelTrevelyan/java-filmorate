@@ -1,6 +1,8 @@
 # java-filmorate
 ## ER-диаграмма
+
 ![filmorate](https://user-images.githubusercontent.com/114815793/232273751-e9b35b36-0a9a-448b-b3db-58949468a329.png)
+=======
 
 Пример запроса:
 Получение топ-10 названий фильмов по количеству лайков:
