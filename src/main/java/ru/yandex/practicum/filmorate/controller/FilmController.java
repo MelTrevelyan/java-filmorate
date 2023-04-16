@@ -10,7 +10,6 @@ import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
 
-
 @Slf4j
 @RestController
 @RequestMapping("/films")
@@ -61,5 +60,11 @@ public class FilmController {
     @DeleteMapping(value = "/{filmId}")
     public void deleteFilm(@PathVariable long filmId) {
         filmService.deleteFilm(filmId);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public List<Film> getFilmsByDirectorIdSortedByYearOrLikes(@PathVariable int directorId,
+                                                                        @RequestParam String sortBy) {
+        return filmService.getFilmsByDirectorIdSortedByYearOrLikes(directorId, sortBy);
     }
 }

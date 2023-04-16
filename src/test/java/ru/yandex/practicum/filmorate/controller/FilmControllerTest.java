@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.DirectorService;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -28,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class FilmControllerTest {
     private final FilmService filmService;
     private final UserService userService;
+    private final DirectorService directorService;
     private static Validator validator;
 
     static {
@@ -94,7 +96,7 @@ public class FilmControllerTest {
     }
 
     @Test
-    public void shouldNotPassReleaseDateValidationInTheFuture() {
+    public void shouldPassReleaseDateValidationInTheFuture() {
         Film film = Film.builder()
                 .name("Аватар")
                 .description("Путь воды")
@@ -104,7 +106,7 @@ public class FilmControllerTest {
                 .build();
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
-        assertEquals(1, violations.size());
+        assertEquals(0, violations.size());
     }
 
     @Test
@@ -282,7 +284,6 @@ public class FilmControllerTest {
                 .releaseDate(LocalDate.of(2010, 12, 6))
                 .mpa(new Mpa(1, "PG"))
                 .build();
-
         filmService.create(film);
         filmService.deleteFilm(film.getId());
 

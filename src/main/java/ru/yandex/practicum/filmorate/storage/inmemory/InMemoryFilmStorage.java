@@ -7,8 +7,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Component("inMemoryFilmStorage")
 public class InMemoryFilmStorage implements FilmStorage {
@@ -66,5 +65,10 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public void deleteFilm(long filmId) {
         films.remove(filmId);
+    }
+
+    @Override
+    public List<Film> getFilmsByDirectorIdSortedByYearOrLikes(int id, String sortBy) {
+        return new ArrayList<>();
     }
 }

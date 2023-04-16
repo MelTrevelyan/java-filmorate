@@ -3,35 +3,34 @@ package ru.yandex.practicum.filmorate.storage.dao;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.exception.FilmDoesNotExistException;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
+import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Slf4j
 @Component("filmDbStorage")
 public class FilmDbStorage implements FilmStorage {
-
     private final JdbcTemplate jdbcTemplate;
     private final UserStorage userStorage;
+    private final DirectorStorage directorStorage;
 
     @Autowired
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, @Qualifier("userDbStorage") UserStorage userStorage) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, @Qualifier("userDbStorage") UserStorage userStorage,
+                         DirectorStorage directorStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.userStorage = userStorage;
+        this.directorStorage = directorStorage;
     }
 
     @Override
@@ -57,6 +56,12 @@ public class FilmDbStorage implements FilmStorage {
                 jdbcTemplate.update(queryForFilmGenre, film.getId(), genre.getId());
             }
         }
+        String queryForFilmDirector = "INSERT into FILM_DIRECTOR (film_id, DIRECTOR_ID) VALUES (?, ?)";
+        if (!film.getDirectors().isEmpty()) {
+            for (Director director : film.getDirectors()) {
+                jdbcTemplate.update(queryForFilmDirector, film.getId(), director.getId());
+            }
+        }
         return findFilmById(film.getId());
     }
 
@@ -72,6 +77,14 @@ public class FilmDbStorage implements FilmStorage {
         if (!film.getGenres().isEmpty()) {
             for (Genre genre : film.getGenres()) {
                 jdbcTemplate.update(queryForUpdateGenre, film.getId(), genre.getId());
+            }
+        }
+        String queryForDeleteDirectors = "DELETE FROM FILM_DIRECTOR WHERE FILM_ID = ?";
+        jdbcTemplate.update(queryForDeleteDirectors, film.getId());
+        String queryForFilmDirector = "INSERT into FILM_DIRECTOR (film_id, DIRECTOR_ID) VALUES (?, ?)";
+        if (!film.getDirectors().isEmpty()) {
+            for (Director director : film.getDirectors()) {
+                jdbcTemplate.update(queryForFilmDirector, film.getId(), director.getId());
             }
         }
         return findFilmById(film.getId());
@@ -93,17 +106,51 @@ public class FilmDbStorage implements FilmStorage {
                     .build();
             List<Genre> genresOfFilm = getGenresOfFilm(id);
             List<Integer> likes = getLikesOfFilm(film.getId());
+            List<Director> directors = directorStorage.getDirectorsByFilmId(film.getId());
             for (Genre genre : genresOfFilm) {
                 film.getGenres().add(genre);
             }
             for (Integer like : likes) {
                 film.getLikes().add(Long.valueOf(like));
             }
+            for (Director director : directors) {
+                film.getDirectors().add(director);
+            }
             log.info("Найден фильм с id {}", id);
             return film;
         }
         log.warn("Фильм с id {} не найден", id);
         throw new FilmDoesNotExistException();
+    }
+
+    public List<Film> getFilmsByDirectorIdSortedByYearOrLikes(int id, String sortBy) {
+        try {
+            directorStorage.getDirectorById(id);
+            String sql;
+            if (sortBy.equals("year")) {
+                sql = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.RATING_ID, " +
+                        "r.RATING_NAME\n FROM FILM f \n" +
+                        "JOIN RATING r ON f.RATING_ID = r.RATING_ID \n" +
+                        "JOIN FILM_DIRECTOR fd ON f.FILM_ID = fd.FILM_ID \n" +
+                        "WHERE fd.DIRECTOR_ID = ? " +
+                        "ORDER BY RELEASE_DATE ";
+                return jdbcTemplate.query(sql, this::mapRowToFilm, id);
+            }
+            if (sortBy.equals("likes")) {
+                sql = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.RATING_ID, " +
+                        "r.RATING_NAME, count(fl.USER_ID) AS likes_quantity FROM FILM f \n" +
+                        "JOIN RATING r ON f.RATING_ID = r.RATING_ID \n" +
+                        "JOIN FILM_DIRECTOR fd ON f.FILM_ID = fd.FILM_ID \n" +
+                        "LEFT JOIN FILM_LIKE fl ON f.FILM_ID = fl.FILM_ID \n" +
+                        "where fd.DIRECTOR_ID = ? " +
+                        "GROUP BY f.FILM_ID \n" +
+                        "ORDER BY likes_quantity desc";
+                return jdbcTemplate.query(sql, this::mapRowToFilm, id);
+            }
+            return new ArrayList<>();
+        } catch (EmptyResultDataAccessException e) {
+            throw new DirectorNotFoundException();
+        }
     }
 
     private Film mapRowToFilm(ResultSet rs, int rowNum) throws SQLException {
@@ -117,13 +164,16 @@ public class FilmDbStorage implements FilmStorage {
                 .build();
         List<Genre> genresOfFilm = getGenresOfFilm(film.getId());
         List<Integer> likes = getLikesOfFilm(film.getId());
+        List<Director> directors = directorStorage.getDirectorsByFilmId(film.getId());
         for (Genre genre : genresOfFilm) {
             film.getGenres().add(genre);
         }
         for (Integer like : likes) {
             film.getLikes().add(Long.valueOf(like));
         }
-
+        for (Director director : directors) {
+            film.getDirectors().add(director);
+        }
         return film;
     }
 

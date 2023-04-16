@@ -39,10 +39,14 @@ public class ErrorHandler {
         return new ErrorResponse("Жанр не найден");
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleReviewNotFound(ReviewDoesNotExistException e) {
         return new ErrorResponse("Отзыв не найден");
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleDirectorNotFound(DirectorNotFoundException e) {
+        return new ErrorResponse("Режиссер не найден.");
     }
 
     @ExceptionHandler
