@@ -83,16 +83,17 @@ public class FilmService {
             if (q.trim().equals("title")) title.set("title");
         });
         StringBuilder queryBuilder = new StringBuilder("%");
-        queryBuilder.append(query).append("%");
+        queryBuilder.append(query.toLowerCase()).append("%");
         return filmStorage.getFilmsByDirectorOrTitle(queryBuilder.toString(), director.get(), title.get());
     }
 
-    public void createDirector(String name) {
-        filmStorage.createDirector(name);
-    }
 
     public void deleteFilm(long filmId) {
         filmStorage.deleteFilm(filmId);
+    }
+
+    public List<Film> getFilmsByDirectorIdSortedByYearOrLikes(int directorId, String sortBy) {
+        return filmStorage.getFilmsByDirectorIdSortedByYearOrLikes(directorId, sortBy);
     }
 
     private long getNextId() {

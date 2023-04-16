@@ -10,7 +10,6 @@ import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
 
-
 @Slf4j
 @RestController
 @RequestMapping("/films")
@@ -66,5 +65,11 @@ public class FilmController {
     @GetMapping("/search")
     public List<Film> getFilmsByDirectorOrTitle(@RequestParam String query, @RequestParam String by) {
         return filmService.getFilmsByDirectorOrTitle(query, by);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public List<Film> getFilmsByDirectorIdSortedByYearOrLikes(@PathVariable int directorId,
+                                                              @RequestParam String sortBy) {
+        return filmService.getFilmsByDirectorIdSortedByYearOrLikes(directorId, sortBy);
     }
 }

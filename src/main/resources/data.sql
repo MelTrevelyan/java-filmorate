@@ -12,8 +12,5 @@ INSERT INTO PUBLIC.GENRE
                   ('Документальный'),
                   ('Боевик');
 
-INSERT INTO PUBLIC.DIRECTOR (DIRECTOR_NAME) VALUES
-	 ('director1'),
-	 ('director2');
 
 

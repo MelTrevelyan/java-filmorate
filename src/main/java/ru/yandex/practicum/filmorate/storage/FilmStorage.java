@@ -19,9 +19,10 @@ public interface FilmStorage {
 
     List<Film> getFilmsByDirectorOrTitle(String query, String director, String title);
 
-    void createDirector(String name);
 
     void deleteLike(long filmId, long userId);
 
     void deleteFilm(long filmId);
+
+    List<Film> getFilmsByDirectorIdSortedByYearOrLikes(int id, String sortBy);
 }
