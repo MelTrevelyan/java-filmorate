@@ -319,7 +319,7 @@ public class FilmControllerTest {
         film2.getDirectors().addAll(directors);
         filmService.update(film2);
 
-        assertEquals(filmService.getFilmsByDirectorIdSortedByYearOrLikes(1, "year").get(0).getName(), "Форрест run");
+        assertEquals(filmService.getFilmsByDirectorIdSortedByYearOrLikes(1, "year").get(1).getName(), "Век Адалин");
     }
 
     @Test
@@ -371,6 +371,6 @@ public class FilmControllerTest {
         filmService.addLike(film1.getId(), secondUser.getId());
         filmService.addLike(film2.getId(), user.getId());
 
-        assertEquals(filmService.getFilmsByDirectorIdSortedByYearOrLikes(1, "likes").get(0).getName(), "Век Адалин");
+        assertEquals(filmService.getFilmsByDirectorIdSortedByYearOrLikes(1, "likes").get(1).getName(), "Форрест run");
     }
 }
