@@ -305,9 +305,12 @@ public class FilmControllerTest {
 
         filmService.addLike(film.getId(), user.getId());
 
-        assertEquals("Джентльмены", filmService.getFilmsByDirectorOrTitle("Джен", "title").get(0).getName());
-        assertEquals("Джентльмены", filmService.getFilmsByDirectorOrTitle("Га", "director").get(0).getName());
-        assertEquals("Форрест Гамп1", filmService.getFilmsByDirectorOrTitle("Га", "director, title").get(0).getName());
+        assertEquals("Джентльмены", filmService.getFilmsByDirectorOrTitle("Джен", "title")
+                .get(0).getName());
+        assertEquals("Джентльмены", filmService.getFilmsByDirectorOrTitle("Га", "director")
+                .get(0).getName());
+        assertEquals("Форрест Гамп1", filmService.getFilmsByDirectorOrTitle("Га", "director, title")
+                .get(0).getName());
         directorService.deleteDirectorById(director.getId());
     }
 
