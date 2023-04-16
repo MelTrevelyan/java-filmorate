@@ -53,4 +53,5 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleDirectorNotFound(DirectorNotFoundException e) {
         return new ErrorResponse("Режиссер не найден.");
+    }
 }
