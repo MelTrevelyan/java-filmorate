@@ -24,7 +24,7 @@ public class DirectorControllerTest {
         directorService.addDirector(director2);
 
         directorService.deleteDirectorById(2);
-        assertEquals(directorService.getAllDirectors().size(), 3);
+        assertEquals(directorService.getAllDirectors().size(), 1);
     }
 
     @Test
@@ -45,7 +45,7 @@ public class DirectorControllerTest {
 
     @Test
     public void shouldGetAllDirectors() {
-        assertEquals(directorService.getAllDirectors().size(), 4);
+        assertEquals(directorService.getAllDirectors().size(), 2);
     }
 
     @Test
