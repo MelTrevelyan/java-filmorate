@@ -50,6 +50,8 @@ public class DirectorControllerTest {
 
     @Test
     public void shouldGetDirectorById() {
-        assertEquals(directorService.getDirectorById(4).getName(), "Александр Невский");
+        Director director3 = new Director(5, "Александр New");
+        directorService.addDirector(director3);
+        assertEquals(directorService.getDirectorById(director3.getId()).getName(), "Александр New");
     }
 }
