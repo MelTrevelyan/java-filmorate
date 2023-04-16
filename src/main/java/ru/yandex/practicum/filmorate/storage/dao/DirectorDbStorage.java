@@ -32,7 +32,7 @@ public class DirectorDbStorage implements DirectorStorage {
             String sql = "SELECT * FROM DIRECTOR WHERE DIRECTOR_ID = ?";
             return jdbcTemplate.queryForObject(sql, this::mapRowToDirector, id);
         } catch (EmptyResultDataAccessException e) {
-            throw new DirectorNotFoundException("Режиссер не найден");
+            throw new DirectorNotFoundException();
         }
     }
 
@@ -50,7 +50,7 @@ public class DirectorDbStorage implements DirectorStorage {
             jdbcTemplate.update(sql, director.getName(), director.getId());
             return director;
         } catch (EmptyResultDataAccessException e) {
-            throw new DirectorNotFoundException("Режиссер не найден");
+            throw new DirectorNotFoundException();
         }
     }
 
@@ -59,7 +59,7 @@ public class DirectorDbStorage implements DirectorStorage {
             String sql = "DELETE DIRECTOR WHERE DIRECTOR_ID = ?";
             jdbcTemplate.update(sql, id);
         } catch (EmptyResultDataAccessException e) {
-            throw new DirectorNotFoundException("Режиссер не найден");
+            throw new DirectorNotFoundException();
         }
     }
 

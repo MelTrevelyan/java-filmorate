@@ -149,7 +149,7 @@ public class FilmDbStorage implements FilmStorage {
             }
             return new ArrayList<>();
         } catch (EmptyResultDataAccessException e) {
-            throw new DirectorNotFoundException("Режиссер не найден");
+            throw new DirectorNotFoundException();
         }
     }
 
