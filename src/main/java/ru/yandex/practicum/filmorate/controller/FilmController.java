@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -64,7 +63,7 @@ public class FilmController {
     }
 
     @GetMapping("/director/{directorId}")
-    public Optional<List<Film>> getFilmsByDirectorIdSortedByYearOrLikes(@PathVariable int directorId,
+    public List<Film> getFilmsByDirectorIdSortedByYearOrLikes(@PathVariable int directorId,
                                                                         @RequestParam String sortBy) {
         return filmService.getFilmsByDirectorIdSortedByYearOrLikes(directorId, sortBy);
     }

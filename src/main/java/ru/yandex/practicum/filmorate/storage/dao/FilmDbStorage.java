@@ -123,31 +123,31 @@ public class FilmDbStorage implements FilmStorage {
         throw new FilmDoesNotExistException();
     }
 
-    public Optional<List<Film>> getFilmsByDirectorIdSortedByYearOrLikes(int id, String sortBy) {
+    public List<Film> getFilmsByDirectorIdSortedByYearOrLikes(int id, String sortBy) {
         try {
             directorStorage.getDirectorById(id);
             String sql;
             if (sortBy.equals("year")) {
-                sql = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.RATING_ID, r.RATING_NAME\n" +
-                        "FROM FILM f \n" +
+                sql = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.RATING_ID, " +
+                        "r.RATING_NAME\n FROM FILM f \n" +
                         "JOIN RATING r ON f.RATING_ID = r.RATING_ID \n" +
                         "JOIN FILM_DIRECTOR fd ON f.FILM_ID = fd.FILM_ID \n" +
                         "WHERE fd.DIRECTOR_ID = ? " +
                         "ORDER BY RELEASE_DATE ";
-                return Optional.of(jdbcTemplate.query(sql, this::mapRowToFilm, id));
+                return jdbcTemplate.query(sql, this::mapRowToFilm, id);
             }
             if (sortBy.equals("likes")) {
-                sql = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.RATING_ID, r.RATING_NAME, count(fl.USER_ID) AS likes_quantity\n" +
-                        "FROM FILM f \n" +
+                sql = "SELECT f.FILM_ID, f.NAME, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.RATING_ID, " +
+                        "r.RATING_NAME, count(fl.USER_ID) AS likes_quantity FROM FILM f \n" +
                         "JOIN RATING r ON f.RATING_ID = r.RATING_ID \n" +
                         "JOIN FILM_DIRECTOR fd ON f.FILM_ID = fd.FILM_ID \n" +
                         "LEFT JOIN FILM_LIKE fl ON f.FILM_ID = fl.FILM_ID \n" +
                         "where fd.DIRECTOR_ID = ? " +
                         "GROUP BY f.FILM_ID \n" +
                         "ORDER BY likes_quantity desc";
-                return Optional.of(jdbcTemplate.query(sql, this::mapRowToFilm, id));
+                return jdbcTemplate.query(sql, this::mapRowToFilm, id);
             }
-            return Optional.empty();
+            return new ArrayList<>();
         } catch (EmptyResultDataAccessException e) {
             throw new DirectorNotFoundException("Режиссер не найден");
         }

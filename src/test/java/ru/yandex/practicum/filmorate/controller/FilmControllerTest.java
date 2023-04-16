@@ -94,7 +94,7 @@ public class FilmControllerTest {
     }
 
     @Test
-    public void shouldNotPassReleaseDateValidationInTheFuture() {
+    public void shouldPassReleaseDateValidationInTheFuture() {
         Film film = Film.builder()
                 .name("Аватар")
                 .description("Путь воды")

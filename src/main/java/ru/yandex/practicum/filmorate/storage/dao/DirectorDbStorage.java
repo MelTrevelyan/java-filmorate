@@ -14,11 +14,11 @@ import java.util.List;
 
 @Component
 @Slf4j
-public class DirectorDBStorage implements DirectorStorage {
+public class DirectorDbStorage implements DirectorStorage {
     private final JdbcTemplate jdbcTemplate;
     private int nextId = 1;
 
-    public DirectorDBStorage(JdbcTemplate jdbcTemplate) {
+    public DirectorDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
