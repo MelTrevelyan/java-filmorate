@@ -32,15 +32,15 @@ public class DirectorControllerTest {
         Director director3 = new Director(3, "Александр Невский");
         directorService.addDirector(director3);
 
-        assertEquals(directorService.getDirectorById(3).getName(), "Александр Невский");
+        assertEquals(directorService.getDirectorById(director3.getId()).getName(), "Александр Невский");
     }
 
     @Test
     public void shouldUpdateDirector() {
-        Director director = new Director(1, "Обновили, уот так уот");
+        Director director = new Director(3, "Обновили, уот так уот");
         directorService.updateDirector(director);
 
-        assertEquals(directorService.getDirectorById(1).getName(), "Обновили, уот так уот");
+        assertEquals(directorService.getDirectorById(director.getId()).getName(), "Обновили, уот так уот");
     }
 
     @Test
@@ -50,6 +50,8 @@ public class DirectorControllerTest {
 
     @Test
     public void shouldGetDirectorById() {
-        assertEquals(directorService.getDirectorById(3).getName(), "Александр Невский");
+        Director director3 = new Director(5, "Александр New");
+        directorService.addDirector(director3);
+        assertEquals(directorService.getDirectorById(director3.getId()).getName(), "Александр New");
     }
 }
