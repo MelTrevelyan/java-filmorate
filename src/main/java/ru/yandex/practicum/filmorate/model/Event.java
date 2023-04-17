@@ -24,7 +24,6 @@ public class Event {
         this.userId = userId;
         this.eventType = eventType;
         this.eventOperation = eventOperation;
-        this.id = id;
         this.entityId = entityId;
     }
 }
