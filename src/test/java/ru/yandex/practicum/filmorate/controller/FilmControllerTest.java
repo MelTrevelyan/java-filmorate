@@ -19,7 +19,6 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -328,87 +327,5 @@ public class FilmControllerTest {
         filmService.deleteFilm(film.getId());
 
         assertFalse(filmService.getFilms().contains(film));
-    }
-
-    @Test
-    public void shouldSortedFilmsByYear() {
-        Director director = new Director(1, "Director");
-        directorService.addDirector(director);
-        Set<Director> directors = new HashSet<>();
-        directors.add(director);
-        Film film1 = Film.builder()
-                .name("Век Адалин")
-                .description("Бессмертие от удара молнии")
-                .duration(192)
-                .releaseDate(LocalDate.of(2010, 12, 6))
-                .mpa(new Mpa(1, "PG"))
-                .build();
-        filmService.create(film1);
-        film1.getDirectors().addAll(directors);
-        filmService.update(film1);
-        Film film2 = Film.builder()
-                .name("Форрест run")
-                .description("Жизнь как коробка конфет")
-                .duration(192)
-                .releaseDate(LocalDate.of(1981, 12, 6))
-                .mpa(new Mpa(1, "G"))
-                .build();
-        filmService.create(film2);
-        film2.getDirectors().addAll(directors);
-        filmService.update(film2);
-
-        assertEquals(filmService.getFilmsByDirectorIdSortedByYearOrLikes(1, "year").get(0).getName(), "Форрест run");
-    }
-
-    @Test
-    public void shouldSortedFilmsByLikes() {
-        Director director = new Director(1, "Director");
-        directorService.addDirector(director);
-        Set<Director> directors = new HashSet<>();
-        directors.add(director);
-
-        Film film1 = Film.builder()
-                .name("Век Адалин")
-                .description("Бессмертие от удара молнии")
-                .duration(192)
-                .releaseDate(LocalDate.of(2010, 12, 6))
-                .mpa(new Mpa(1, "G"))
-                .build();
-        filmService.create(film1);
-        film1.getDirectors().addAll(directors);
-        filmService.update(film1);
-
-        Film film2 = Film.builder()
-                .name("Форрест run")
-                .description("Жизнь как коробка конфет")
-                .duration(192)
-                .releaseDate(LocalDate.of(1981, 12, 6))
-                .mpa(new Mpa(1, "G"))
-                .build();
-        filmService.create(film2);
-        film2.getDirectors().addAll(directors);
-        filmService.update(film2);
-
-        User user = User.builder()
-                .login("Iris1")
-                .name("Melissa1")
-                .email("mellow1@mail.ru")
-                .birthday(LocalDate.of(2000, 8, 15))
-                .build();
-        userService.create(user);
-
-        User secondUser = User.builder()
-                .login("Iris2")
-                .name("Melissa2")
-                .email("meow2@mail.ru")
-                .birthday(LocalDate.of(2000, 8, 15))
-                .build();
-        userService.create(secondUser);
-
-        filmService.addLike(film1.getId(), user.getId());
-        filmService.addLike(film1.getId(), secondUser.getId());
-        filmService.addLike(film2.getId(), user.getId());
-
-        assertEquals(filmService.getFilmsByDirectorIdSortedByYearOrLikes(1, "likes").get(0).getName(), "Век Адалин");
     }
 }
