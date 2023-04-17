@@ -38,10 +38,10 @@ public class ReviewService {
     }
 
     public void deleteReview(long id) {
-        reviewStorage.deleteReview(id);
         Long userId = reviewStorage.findReviewById(id).getUserId();
         Event event = new Event(userId, EventType.REVIEW, EventOperation.REMOVE, id);
         eventStorage.addEvent(event);
+        reviewStorage.deleteReview(id);
     }
 
     public Review findReviewById(long id) {
