@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.storage.EventStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.List;
 
 @Component
