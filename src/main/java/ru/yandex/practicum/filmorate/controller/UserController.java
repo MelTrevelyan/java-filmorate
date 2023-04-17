@@ -19,6 +19,7 @@ public class UserController {
 
     private final UserService userService;
     private final EventService eventService;
+
     @Autowired
     public UserController(UserService userService, EventService eventService) {
         this.userService = userService;

@@ -12,12 +12,12 @@ INSERT INTO PUBLIC.GENRE
                   ('Документальный'),
                   ('Боевик');
 
-INSERT INTO `EVENT_TYPES` (EVENT_TYPE_ID, NAME)
+INSERT INTO PUBLIC.EVENT_TYPE (EVENT_TYPE_ID, NAME)
                   VALUES (1, 'LIKE'),
                          (2, 'REVIEW'),
                          (3, 'FRIEND');
 
-INSERT INTO `EVENT_OPERATIONS` (EVENT_OPERATION_ID, NAME)
+INSERT INTO PUBLIC.EVENT_OPERATION (EVENT_OPERATION_ID, NAME)
                   VALUES (1, 'ADD'),
                          (2, 'UPDATE'),
                          (3, 'REMOVE');

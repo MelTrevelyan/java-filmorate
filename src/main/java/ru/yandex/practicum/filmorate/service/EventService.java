@@ -15,8 +15,8 @@ public class EventService {
 
     private final EventStorage eventStorage;
 
-    public void addEvent(final long userId, EventType eventType, EventOperation eventOperation, final long entityId) {
-        eventStorage.addEvent(userId, eventType.getId(), eventOperation.getId(), entityId);
+    public void addEvent(Event event) {
+        eventStorage.addEvent(event);
     }
 
     public List<Event> findUserEvent(Long userId) {
