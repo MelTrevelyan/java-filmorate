@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
@@ -37,8 +38,10 @@ public class FilmControllerTest {
         validator = validatorFactory.usingContext().getValidator();
     }
 
+
     @Test
     public void shouldCreateFilm() {
+
         Film film = Film.builder()
                 .name("Акварарк")
                 .description("Путь воды")
@@ -125,6 +128,7 @@ public class FilmControllerTest {
 
     @Test
     public void shouldUpdateFilm() {
+
         Film film = Film.builder()
                 .name("Аватар")
                 .description("Путь воды")
@@ -273,6 +277,41 @@ public class FilmControllerTest {
         filmService.addLike(film.getId(), secondUser.getId());
 
         assertEquals(List.of(filmService.findFilmById(film.getId())), filmService.getMostPopularFilms(1));
+    }
+
+    @Test
+    public void getFilmsByDirectorOrTitle() {
+        Director director = Director.builder().name("Гай Ричи").build();
+        directorService.addDirector(director);
+        User user = User.builder()
+                .login("Iris")
+                .name("Melissa")
+                .email("mello@mail.ru")
+                .birthday(LocalDate.of(2000, 8, 15))
+                .build();
+        userService.create(user);
+
+
+        Film film = Film.builder()
+                .name("Джентльмены")
+                .description("Наркобарон хочет уйти на покой, но криминальный мир не отпускает. " +
+                        "Успешное возвращение Гая Ричи к корням")
+                .duration(192)
+                .releaseDate(LocalDate.of(2022, 03, 7))
+                .mpa(new Mpa(1, "PG"))
+                .build();
+        film.getDirectors().add(director);
+        filmService.create(film);
+
+        filmService.addLike(film.getId(), user.getId());
+
+        assertEquals("Джентльмены", filmService.getFilmsByDirectorOrTitle("Джен", "title")
+                .get(0).getName());
+        assertEquals("Джентльмены", filmService.getFilmsByDirectorOrTitle("Га", "director")
+                .get(0).getName());
+        assertEquals("Форрест Гамп1", filmService.getFilmsByDirectorOrTitle("Га", "director, title")
+                .get(0).getName());
+        directorService.deleteDirectorById(director.getId());
     }
 
     @Test
