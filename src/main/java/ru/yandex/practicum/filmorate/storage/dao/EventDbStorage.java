@@ -1,25 +1,30 @@
 package ru.yandex.practicum.filmorate.storage.dao;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.EventOperation;
 import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.storage.EventStorage;
-import ru.yandex.practicum.filmorate.exception.UserDoesNotExistException;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
+
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+
 
 @Slf4j
 @Component
 public class EventDbStorage implements EventStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final UserStorage userStorage;
 
-    public EventDbStorage(JdbcTemplate jdbcTemplate) {
+    public EventDbStorage(JdbcTemplate jdbcTemplate, @Qualifier("userDbStorage") UserStorage userStorage) {
         this.jdbcTemplate = jdbcTemplate;
+        this.userStorage = userStorage;
     }
 
     @Override
@@ -37,18 +42,13 @@ public class EventDbStorage implements EventStorage {
 
     @Override
     public List<Event> findUserEvent(Long userId) {
+        userStorage.findUserById(userId);
         String sql = "SELECT UE.EVENT_ID, UE.TIME_ADD, UE.USER_ID,UE.ENTITY_ID, ET.NAME AS EVENT_TYPE_NAME, EO.NAME AS EVENT_OPERATION_NAME " +
                 "FROM USER_EVENT AS UE LEFT JOIN EVENT_TYPE AS ET ON UE.EVENT_TYPE_ID = ET.EVENT_TYPE_ID " +
                 "LEFT JOIN EVENT_OPERATION AS EO " +
                 "ON UE.EVENT_OPERATION_ID = EO.EVENT_OPERATION_ID " +
                 "WHERE UE.USER_ID=?";
-        SqlRowSet eventRows = jdbcTemplate.queryForRowSet(sql, userId);
-        if (eventRows.next()) {
-            log.info("Найдены события пользователя с id {}", userId);
-            return jdbcTemplate.query(sql, this::makeEvent, userId);
-        }
-        log.warn("Пользователь с id {} не найден", userId);
-        throw new UserDoesNotExistException();
+        return jdbcTemplate.query(sql, this::makeEvent, userId);
     }
 
     private Event makeEvent(ResultSet rs, int i) throws SQLException {
