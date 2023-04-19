@@ -5,7 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmDoesNotExistException;
+import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.EventOperation;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.EventStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.validator.FilmValidator;
 
@@ -21,11 +25,13 @@ import java.util.stream.Collectors;
 public class FilmService {
 
     private final FilmStorage filmStorage;
+    private final EventStorage eventStorage;
     private long nextId = 1;
 
     @Autowired
-    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage) {
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, EventStorage eventStorage) {
         this.filmStorage = filmStorage;
+        this.eventStorage = eventStorage;
     }
 
     public Collection<Film> getFilms() {
@@ -59,11 +65,15 @@ public class FilmService {
 
     public void addLike(long filmId, long userId) {
         filmStorage.addLike(filmId, userId);
+        Event event = new Event(userId, EventType.LIKE, EventOperation.ADD, filmId);
+        eventStorage.addEvent(event);
         log.info("Пользователь с id {} поставил фильму с id {} лайк", userId, filmId);
     }
 
     public void deleteLike(long filmId, long userId) {
         filmStorage.deleteLike(filmId, userId);
+        Event event = new Event(userId, EventType.LIKE, EventOperation.REMOVE, filmId);
+        eventStorage.addEvent(event);
         log.info("Лайк пользователя с id {} фильму с id {} удалён", userId, filmId);
     }
 
