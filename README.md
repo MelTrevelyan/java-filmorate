@@ -1,7 +1,7 @@
 # java-filmorate
 ## ER-диаграмма
 
-![filmorate](https://user-images.githubusercontent.com/114815793/232273751-e9b35b36-0a9a-448b-b3db-58949468a329.png)
+![filmorate](https://user-images.githubusercontent.com/114815793/233120990-907ca13c-26ba-4127-86b9-fa67352b0fcc.png)
 =======
 
 Пример запроса:
