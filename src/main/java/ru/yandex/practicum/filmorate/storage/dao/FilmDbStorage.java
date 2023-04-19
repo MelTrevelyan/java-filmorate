@@ -204,8 +204,12 @@ public class FilmDbStorage implements FilmStorage {
     public void addLike(long filmId, long userId) {
         Film film = findFilmById(filmId);
         User user = userStorage.findUserById(userId);
-        String sqlQuery = "INSERT INTO FILM_LIKE (FILM_ID, USER_ID) VALUES (?, ?);";
-        jdbcTemplate.update(sqlQuery, filmId, userId);
+        try {
+            String sqlQuery = "INSERT INTO FILM_LIKE (FILM_ID, USER_ID) VALUES (?, ?);";
+            jdbcTemplate.update(sqlQuery, filmId, userId);
+        } catch (Exception e) {
+            log.warn("Лайк фильму с id {} от пользователя с id {} уже существует", filmId, userId);
+        }
     }
 
     @Override
@@ -286,24 +290,24 @@ public class FilmDbStorage implements FilmStorage {
          */
         String sql =
                 "SELECT * FROM FILM F " + //(4)
-                "JOIN RATING R ON F.RATING_ID = R.RATING_ID " +
-                "WHERE F.FILM_ID IN (" +
-                    "SELECT FILM_ID FROM FILM_LIKE " + //(2)
-                    "WHERE USER_ID IN (" +
+                        "JOIN RATING R ON F.RATING_ID = R.RATING_ID " +
+                        "WHERE F.FILM_ID IN (" +
+                        "SELECT FILM_ID FROM FILM_LIKE " + //(2)
+                        "WHERE USER_ID IN (" +
                         "SELECT FL1.USER_ID FROM FILM_LIKE FL1 " + //(1)
                         "RIGHT JOIN FILM_LIKE FL2 ON FL2.FILM_ID = FL1.FILM_ID " +
                         "GROUP BY FL1.USER_ID, FL2.USER_ID " +
                         "HAVING FL1.USER_ID IS NOT NULL AND " +
-                            "FL1.USER_ID != ? AND " +
-                            "FL2.USER_ID = ? " +
+                        "FL1.USER_ID != ? AND " +
+                        "FL2.USER_ID = ? " +
                         "ORDER BY COUNT(FL1.USER_ID) DESC " +
                         "LIMIT 3 " +
-                    ") " +
-                    "AND FILM_ID NOT IN (" +
+                        ") " +
+                        "AND FILM_ID NOT IN (" +
                         "SELECT FILM_ID FROM FILM_LIKE " + //(3)
                         "WHERE USER_ID = ?" +
-                    ")" +
-                ")";
+                        ")" +
+                        ")";
 
         return jdbcTemplate.query(sql, this::mapRowToFilm, userId, userId, userId);
     }
