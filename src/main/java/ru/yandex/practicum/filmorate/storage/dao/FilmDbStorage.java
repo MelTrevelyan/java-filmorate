@@ -200,12 +200,15 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(queryForFilmLikes, this::mapRowToLike, filmId);
     }
 
-    @Override
     public void addLike(long filmId, long userId) {
         Film film = findFilmById(filmId);
         User user = userStorage.findUserById(userId);
-        String sqlQuery = "INSERT INTO FILM_LIKE (FILM_ID, USER_ID) VALUES (?, ?);";
-        jdbcTemplate.update(sqlQuery, filmId, userId);
+        try {
+            String sqlQuery = "INSERT INTO FILM_LIKE (FILM_ID, USER_ID) VALUES (?, ?);";
+            jdbcTemplate.update(sqlQuery, filmId, userId);
+        } catch (Exception e) {
+            log.warn("Лайк фильму с id {} от пользователя с id {} уже существует", filmId, userId);
+        }
     }
 
     @Override
