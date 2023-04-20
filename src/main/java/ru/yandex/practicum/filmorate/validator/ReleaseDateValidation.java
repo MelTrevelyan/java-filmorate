@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.PARAMETER;
 
-@Target( { FIELD, PARAMETER })
+@Target({FIELD, PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Constraint(validatedBy = ReleaseDateValidator.class)
