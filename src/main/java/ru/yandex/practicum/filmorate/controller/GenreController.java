@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.service.GenreService;
 
+import javax.validation.constraints.NotNull;
 import java.util.Collection;
 
 @RestController
@@ -26,7 +27,7 @@ public class GenreController {
     }
 
     @GetMapping("/{id}")
-    public Genre getGenreById(@PathVariable int id) {
+    public Genre getGenreById(@NotNull @PathVariable int id) {
         return genreService.getGenreById(id);
     }
 }
