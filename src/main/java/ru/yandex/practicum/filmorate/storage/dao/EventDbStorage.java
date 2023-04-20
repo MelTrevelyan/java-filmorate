@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.storage.EventStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;

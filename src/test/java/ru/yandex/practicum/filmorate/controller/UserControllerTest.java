@@ -5,14 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.service.EventService;
 import ru.yandex.practicum.filmorate.service.FilmService;
-
-import ru.yandex.practicum.filmorate.model.User;
-
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.ConstraintViolation;
@@ -286,8 +281,8 @@ public class UserControllerTest {
         eventService.addEvent(event);
         eventService.addEvent(event1);
         assertEquals(2, eventService.findUserEvent(user.getId()).size());
-        assertEquals(eventService.findUserEvent(user.getId()).get(0).getUserId(),user.getId());
-        assertEquals(eventService.findUserEvent(user.getId()).get(0).getEventType(),EventType.LIKE);
-        assertEquals(eventService.findUserEvent(user.getId()).get(1).getEventOperation(),EventOperation.ADD);
+        assertEquals(eventService.findUserEvent(user.getId()).get(0).getUserId(), user.getId());
+        assertEquals(eventService.findUserEvent(user.getId()).get(0).getEventType(), EventType.LIKE);
+        assertEquals(eventService.findUserEvent(user.getId()).get(1).getEventOperation(), EventOperation.ADD);
     }
 }
