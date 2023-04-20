@@ -5,10 +5,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.service.EventService;
 import ru.yandex.practicum.filmorate.service.FilmService;
+
+import ru.yandex.practicum.filmorate.model.User;
+
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.ConstraintViolation;
@@ -20,7 +24,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -104,12 +109,12 @@ public class UserControllerTest {
         User user = User.builder()
                 .login("")
                 .name("Melissa")
-                .email("nicemail@mail.ru")
+                .email("Jolly@mail.ru")
                 .birthday(LocalDate.of(2000, 8, 15))
                 .build();
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
-        assertEquals(1, violations.size());
+        assertEquals(2, violations.size());
     }
 
     @Test
@@ -121,7 +126,8 @@ public class UserControllerTest {
                 .birthday(LocalDate.of(2000, 8, 15))
                 .build();
 
-        assertThrows(ValidationException.class, () -> userService.create(user));
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        assertEquals(1, violations.size());
     }
 
     @Test

@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.service.DirectorService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
@@ -23,7 +24,7 @@ public class DirectorController {
     }
 
     @GetMapping("/directors/{id}")
-    public Director getDirectorById(@PathVariable int id) {
+    public Director getDirectorById(@NotNull @PathVariable int id) {
         return directorService.getDirectorById(id);
     }
 
@@ -38,7 +39,7 @@ public class DirectorController {
     }
 
     @DeleteMapping("/directors/{id}")
-    public void deleteDirectorById(@PathVariable int id) {
+    public void deleteDirectorById(@NotNull @PathVariable int id) {
         directorService.deleteDirectorById(id);
     }
 }

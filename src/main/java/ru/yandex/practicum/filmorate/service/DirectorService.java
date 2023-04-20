@@ -9,30 +9,30 @@ import java.util.List;
 
 @Service
 public class DirectorService {
-    private final DirectorStorage directorDBStorage;
+    private final DirectorStorage directorDbStorage;
 
     @Autowired
     public DirectorService(DirectorStorage directorDBStorage) {
-        this.directorDBStorage = directorDBStorage;
+        this.directorDbStorage = directorDBStorage;
     }
 
     public List<Director> getAllDirectors() {
-        return directorDBStorage.getAllDirectors();
+        return directorDbStorage.getAllDirectors();
     }
 
     public Director getDirectorById(int id) {
-        return directorDBStorage.getDirectorById(id);
+        return directorDbStorage.getDirectorById(id);
     }
 
     public Director addDirector(Director director) {
-        return directorDBStorage.addDirector(director);
+        return directorDbStorage.addDirector(director);
     }
 
     public Director updateDirector(Director director) {
-        return directorDBStorage.updateDirector(director);
+        return directorDbStorage.updateDirector(director);
     }
 
     public void deleteDirectorById(int id) {
-        directorDBStorage.deleteDirectorById(id);
+        directorDbStorage.deleteDirectorById(id);
     }
 }
