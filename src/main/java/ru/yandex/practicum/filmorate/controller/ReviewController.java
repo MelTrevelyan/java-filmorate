@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.ReviewService;
@@ -10,6 +11,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
+@Validated
 @RequestMapping("/reviews")
 public class ReviewController {
 
@@ -57,12 +59,12 @@ public class ReviewController {
     }
 
     @DeleteMapping(value = "/{id}/like/{userId}")
-    public void deleteLike(@NotNull @PathVariable long reviewId, @NotNull @PathVariable long userId) {
-        reviewService.deleteLike(reviewId, userId);
+    public void deleteLike(@NotNull @PathVariable long id, @NotNull @PathVariable long userId) {
+        reviewService.deleteLike(id, userId);
     }
 
     @DeleteMapping(value = "/{id}/dislike/{userId}")
-    public void deleteDislike(@NotNull @PathVariable long reviewId, @NotNull @PathVariable long userId) {
-        reviewService.deleteDislike(reviewId, userId);
+    public void deleteDislike(@NotNull @PathVariable long id, @NotNull @PathVariable long userId) {
+        reviewService.deleteDislike(id, userId);
     }
 }

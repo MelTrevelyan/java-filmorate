@@ -2,8 +2,8 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Slf4j
+@Validated
 @RestController
 @RequestMapping("/films")
 public class FilmController {
@@ -65,17 +66,13 @@ public class FilmController {
     }
 
     @GetMapping("/search")
-    public List<Film> getFilmsByDirectorOrTitle(@RequestParam String query, @RequestParam String by) {
-        if(query == null || by == null){
-            log.error("Параметры query {} и by {} не должны быть NULL ", query, by);
-            throw new ValidationException();
-        }
+    public List<Film> getFilmsByDirectorOrTitle(@NotNull @RequestParam String query, @NotNull @RequestParam String by) {
         return filmService.getFilmsByDirectorOrTitle(query, by);
     }
 
     @GetMapping("/director/{directorId}")
     public List<Film> getFilmsByDirectorIdSortedByYearOrLikes(@NotNull @PathVariable int directorId,
-                                                              @RequestParam String sortBy) {
+                                                              @NotNull @RequestParam String sortBy) {
         return filmService.getFilmsByDirectorIdSortedByYearOrLikes(directorId, sortBy);
     }
 }
