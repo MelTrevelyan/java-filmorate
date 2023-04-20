@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -64,6 +65,10 @@ public class FilmController {
 
     @GetMapping("/search")
     public List<Film> getFilmsByDirectorOrTitle(@RequestParam String query, @RequestParam String by) {
+        if(query == null || by == null){
+            log.error("Параметры query {} и by {} не должны быть NULL ", query, by);
+            throw new ValidationException();
+        }
         return filmService.getFilmsByDirectorOrTitle(query, by);
     }
 
