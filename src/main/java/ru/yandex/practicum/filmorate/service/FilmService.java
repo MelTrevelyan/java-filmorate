@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.model.EventOperation;
 import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.validator.FilmValidator;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,13 +36,11 @@ public class FilmService {
     }
 
     public Film create(Film film) {
-        FilmValidator.validateFilm(film);
         log.info("Добавлен новый фильм");
         return filmStorage.create(film);
     }
 
     public Film update(Film film) {
-        FilmValidator.validateFilm(film);
         if (filmStorage.findFilmById(film.getId()) == null) {
             log.warn("Невозможно обновить фильм");
             throw new FilmDoesNotExistException();

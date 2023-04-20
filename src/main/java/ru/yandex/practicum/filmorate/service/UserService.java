@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.exception.UserDoesNotExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
-import ru.yandex.practicum.filmorate.validator.UserValidator;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -43,13 +42,11 @@ public class UserService {
                 throw new ValidationException();
             }
         }
-        UserValidator.validateUser(user);
         log.info("Добавлен новый пользователь");
         return userStorage.create(user);
     }
 
     public User update(User user) {
-        UserValidator.validateUser(user);
         if (userStorage.findUserById(user.getId()) == null) {
             log.warn("Невозможно обновить пользователя");
             throw new UserDoesNotExistException();

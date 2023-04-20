@@ -44,6 +44,10 @@ public class UserDbStorage implements UserStorage {
     public User create(User user) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         String sqlQuery = "INSERT INTO \"USER\" (EMAIL, LOGIN, BIRTHDAY, NAME) VALUES (?, ?, ?, ?)";
+
+        if (user.getName() == null || user.getName().isBlank() || user.getName().isEmpty()) {
+            user.setName(user.getLogin());
+        }
         jdbcTemplate.update(
                 connection -> {
                     PreparedStatement ps =
@@ -63,6 +67,10 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User update(User user) {
         String sqlQuery = "UPDATE \"USER\" SET EMAIL = ?, LOGIN = ?, BIRTHDAY = ?, NAME = ? WHERE USER_ID = ?";
+
+        if (user.getName() == null || user.getName().isBlank() || user.getName().isEmpty()) {
+            user.setName(user.getLogin());
+        }
         jdbcTemplate.update(sqlQuery, user.getEmail(), user.getLogin(), user.getBirthday(), user.getName(),
                 user.getId());
         return findUserById(user.getId());
