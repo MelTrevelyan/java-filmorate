@@ -1,14 +1,17 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
+@Validated
 @RequestMapping("/reviews")
 public class ReviewController {
 
@@ -30,12 +33,12 @@ public class ReviewController {
     }
 
     @DeleteMapping(value = "/{id}")
-    public void deleteReview(@PathVariable long id) {
+    public void deleteReview(@NotNull @PathVariable long id) {
         reviewService.deleteReview(id);
     }
 
     @GetMapping("/{id}")
-    public Review findReviewById(@PathVariable long id) {
+    public Review findReviewById(@NotNull @PathVariable long id) {
         return reviewService.findReviewById(id);
     }
 
@@ -46,22 +49,22 @@ public class ReviewController {
     }
 
     @PutMapping(value = "/{id}/like/{userId}")
-    public void addLike(@PathVariable long id, @PathVariable long userId) {
+    public void addLike(@NotNull @PathVariable long id, @NotNull @PathVariable long userId) {
         reviewService.addLike(id, userId);
     }
 
     @PutMapping(value = "/{id}/dislike/{userId}")
-    public void addDislike(@PathVariable long id, @PathVariable long userId) {
+    public void addDislike(@NotNull @PathVariable long id, @NotNull @PathVariable long userId) {
         reviewService.addDislike(id, userId);
     }
 
     @DeleteMapping(value = "/{id}/like/{userId}")
-    public void deleteLike(@PathVariable long reviewId, @PathVariable long userId) {
-        reviewService.deleteLike(reviewId, userId);
+    public void deleteLike(@NotNull @PathVariable long id, @NotNull @PathVariable long userId) {
+        reviewService.deleteLike(id, userId);
     }
 
     @DeleteMapping(value = "/{id}/dislike/{userId}")
-    public void deleteDislike(@PathVariable long reviewId, @PathVariable long userId) {
-        reviewService.deleteDislike(reviewId, userId);
+    public void deleteDislike(@NotNull @PathVariable long id, @NotNull @PathVariable long userId) {
+        reviewService.deleteDislike(id, userId);
     }
 }

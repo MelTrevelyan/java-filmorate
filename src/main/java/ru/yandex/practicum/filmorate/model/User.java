@@ -17,6 +17,7 @@ public class User {
     @Email(message = "Адрес электронной почты введен некорректно")
     private final String email;
     @NotEmpty(message = "Логин не может быть пустым")
+    @Pattern(regexp = "^\\S+$")
     private final String login;
     @NotNull
     @PastOrPresent(message = "День рождения не может быть в будущем")

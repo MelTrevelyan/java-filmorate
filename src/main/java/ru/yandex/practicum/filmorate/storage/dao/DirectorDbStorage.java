@@ -3,20 +3,23 @@ package ru.yandex.practicum.filmorate.storage.dao;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 @Slf4j
 public class DirectorDbStorage implements DirectorStorage {
     private final JdbcTemplate jdbcTemplate;
-    private int nextId = 1;
 
     public DirectorDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -37,9 +40,15 @@ public class DirectorDbStorage implements DirectorStorage {
     }
 
     public Director addDirector(Director director) {
-        String sql = "INSERT INTO PUBLIC.DIRECTOR (DIRECTOR_ID, DIRECTOR_NAME) VALUES (?, ?)";
-        director.setId(nextId++);
-        jdbcTemplate.update(sql, director.getId(), director.getName());
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        String sql = "INSERT INTO PUBLIC.DIRECTOR (DIRECTOR_NAME) VALUES (?)";
+        jdbcTemplate.update(con -> {
+            PreparedStatement ps = con
+                    .prepareStatement(sql, new String[]{"DIRECTOR_ID"});
+            ps.setString(1, director.getName());
+            return ps;
+        }, keyHolder);
+        director.setId((Objects.requireNonNull(keyHolder.getKey()).intValue()));
         return director;
     }
 
