@@ -5,7 +5,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.*;
+import ru.yandex.practicum.filmorate.service.EventService;
+import ru.yandex.practicum.filmorate.service.FilmService;
+
 import ru.yandex.practicum.filmorate.model.User;
+
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.ConstraintViolation;
@@ -26,6 +33,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 public class UserControllerTest {
 
     private final UserService userService;
+    private final FilmService filmService;
+
+    private final EventService eventService;
     private static Validator validator;
 
     static {
@@ -245,5 +255,39 @@ public class UserControllerTest {
         userService.deleteUser(user.getId());
 
         assertFalse(userService.getUsers().contains(user));
+    }
+
+    @Test
+    public void shouldCreateUserEvents() {
+        User user = User.builder()
+                .login("Iri")
+                .name("Mel")
+                .email("Meliry@mail.ru")
+                .birthday(LocalDate.of(2000, 8, 15))
+                .build();
+        userService.create(user);
+        User user2 = User.builder()
+                .login("Markich")
+                .name("Mark")
+                .email("mark@mail.ru")
+                .birthday(LocalDate.of(2002, 8, 15))
+                .build();
+        userService.create(user2);
+        Film film = Film.builder()
+                .name("Форрест Гамп")
+                .description("Жизнь как коробка конфет")
+                .duration(192)
+                .releaseDate(LocalDate.of(1981, 12, 6))
+                .mpa(new Mpa(1, "PG"))
+                .build();
+        filmService.create(film);
+        Event event = new Event(user.getId(), EventType.LIKE, EventOperation.ADD, film.getId());
+        Event event1 = new Event(user.getId(), EventType.FRIEND, EventOperation.ADD, user2.getId());
+        eventService.addEvent(event);
+        eventService.addEvent(event1);
+        assertEquals(2, eventService.findUserEvent(user.getId()).size());
+        assertEquals(eventService.findUserEvent(user.getId()).get(0).getUserId(),user.getId());
+        assertEquals(eventService.findUserEvent(user.getId()).get(0).getEventType(),EventType.LIKE);
+        assertEquals(eventService.findUserEvent(user.getId()).get(1).getEventOperation(),EventOperation.ADD);
     }
 }
