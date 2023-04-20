@@ -24,7 +24,6 @@ import java.util.List;
 @Service
 public class UserService {
 
-    private long nextId = 1;
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
     private final EventStorage eventStorage;
@@ -51,7 +50,6 @@ public class UserService {
             }
         }
         UserValidator.validateUser(user);
-        user.setId(getNextId());
         log.info("Добавлен новый пользователь");
         return userStorage.create(user);
     }
@@ -99,10 +97,6 @@ public class UserService {
 
     public void deleteUser(long userId) {
         userStorage.deleteUser(userId);
-    }
-
-    private long getNextId() {
-        return nextId++;
     }
 
     public List<Film> getRecommendations(long userId) {

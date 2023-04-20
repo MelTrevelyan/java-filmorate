@@ -26,7 +26,6 @@ public class FilmService {
 
     private final FilmStorage filmStorage;
     private final EventStorage eventStorage;
-    private long nextId = 1;
 
     @Autowired
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, EventStorage eventStorage) {
@@ -40,7 +39,6 @@ public class FilmService {
 
     public Film create(Film film) {
         FilmValidator.validateFilm(film);
-        film.setId(getNextId());
         log.info("Добавлен новый фильм");
         return filmStorage.create(film);
     }
@@ -97,16 +95,11 @@ public class FilmService {
         return filmStorage.getFilmsByDirectorOrTitle(queryBuilder.toString(), director.get(), title.get());
     }
 
-
     public void deleteFilm(long filmId) {
         filmStorage.deleteFilm(filmId);
     }
 
     public List<Film> getFilmsByDirectorIdSortedByYearOrLikes(int directorId, String sortBy) {
         return filmStorage.getFilmsByDirectorIdSortedByYearOrLikes(directorId, sortBy);
-    }
-
-    private long getNextId() {
-        return nextId++;
     }
 }
