@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -95,7 +94,8 @@ public class FilmControllerTest {
                 .mpa(new Mpa(1, "PG"))
                 .build();
 
-        assertThrows(ValidationException.class, () -> filmService.create(film1));
+        Set<ConstraintViolation<Film>> violations = validator.validate(film1);
+        assertEquals(1, violations.size());
     }
 
     @Test
@@ -180,7 +180,8 @@ public class FilmControllerTest {
                 .build();
         filmService.create(film);
 
-        assertTrue(filmService.getFilms().contains(film));
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        assertEquals(0, violations.size());
     }
 
     @Test
@@ -297,7 +298,7 @@ public class FilmControllerTest {
                 .description("Наркобарон хочет уйти на покой, но криминальный мир не отпускает. " +
                         "Успешное возвращение Гая Ричи к корням")
                 .duration(192)
-                .releaseDate(LocalDate.of(2022, 03, 7))
+                .releaseDate(LocalDate.of(2022, 3, 7))
                 .mpa(new Mpa(1, "PG"))
                 .build();
         film.getDirectors().add(director);

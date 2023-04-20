@@ -9,9 +9,7 @@ import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.EventOperation;
 import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.EventStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.validator.FilmValidator;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,13 +23,12 @@ import java.util.stream.Collectors;
 public class FilmService {
 
     private final FilmStorage filmStorage;
-    private final EventStorage eventStorage;
-    private long nextId = 1;
+    private final EventService eventService;
 
     @Autowired
-    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, EventStorage eventStorage) {
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, EventService eventService) {
         this.filmStorage = filmStorage;
-        this.eventStorage = eventStorage;
+        this.eventService = eventService;
     }
 
     public Collection<Film> getFilms() {
@@ -39,14 +36,11 @@ public class FilmService {
     }
 
     public Film create(Film film) {
-        FilmValidator.validateFilm(film);
-        film.setId(getNextId());
         log.info("Добавлен новый фильм");
         return filmStorage.create(film);
     }
 
     public Film update(Film film) {
-        FilmValidator.validateFilm(film);
         if (filmStorage.findFilmById(film.getId()) == null) {
             log.warn("Невозможно обновить фильм");
             throw new FilmDoesNotExistException();
@@ -66,14 +60,14 @@ public class FilmService {
     public void addLike(long filmId, long userId) {
         filmStorage.addLike(filmId, userId);
         Event event = new Event(userId, EventType.LIKE, EventOperation.ADD, filmId);
-        eventStorage.addEvent(event);
+        eventService.addEvent(event);
         log.info("Пользователь с id {} поставил фильму с id {} лайк", userId, filmId);
     }
 
     public void deleteLike(long filmId, long userId) {
         filmStorage.deleteLike(filmId, userId);
         Event event = new Event(userId, EventType.LIKE, EventOperation.REMOVE, filmId);
-        eventStorage.addEvent(event);
+        eventService.addEvent(event);
         log.info("Лайк пользователя с id {} фильму с id {} удалён", userId, filmId);
     }
 
@@ -97,7 +91,6 @@ public class FilmService {
         return filmStorage.getFilmsByDirectorOrTitle(queryBuilder.toString(), director.get(), title.get());
     }
 
-
     public void deleteFilm(long filmId) {
         filmStorage.deleteFilm(filmId);
     }
@@ -106,7 +99,7 @@ public class FilmService {
         return filmStorage.getFilmsByDirectorIdSortedByYearOrLikes(directorId, sortBy);
     }
 
-    private long getNextId() {
-        return nextId++;
+    public List<Film> getRecommendations(long userId) {
+        return filmStorage.getRecommendations(userId);
     }
 }

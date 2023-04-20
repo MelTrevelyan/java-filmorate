@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.model;
 import lombok.Builder;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
+import ru.yandex.practicum.filmorate.validator.ReleaseDateValidation;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
@@ -19,6 +20,7 @@ public class Film {
     @NotNull
     private final String description;
     @NotNull
+    @ReleaseDateValidation
     private final LocalDate releaseDate;
     @Positive(message = "Продолжительность фильма не может быть отрицательной")
     @NotNull
