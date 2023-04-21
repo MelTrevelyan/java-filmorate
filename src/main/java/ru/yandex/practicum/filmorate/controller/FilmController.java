@@ -2,16 +2,18 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.List;
 
-
 @Slf4j
+@Validated
 @RestController
 @RequestMapping("/films")
 public class FilmController {
@@ -39,22 +41,38 @@ public class FilmController {
     }
 
     @GetMapping("/{id}")
-    public Film findFilmById(@PathVariable long id) {
+    public Film findFilmById(@NotNull @PathVariable long id) {
         return filmService.findFilmById(id);
     }
 
     @PutMapping(value = "/{id}/like/{userId}")
-    public void addLike(@PathVariable long id, @PathVariable long userId) {
+    public void addLike(@NotNull @PathVariable long id, @NotNull @PathVariable long userId) {
         filmService.addLike(id, userId);
     }
 
     @DeleteMapping(value = "/{id}/like/{userId}")
-    public void deleteLike(@PathVariable long id, @PathVariable long userId) {
+    public void deleteLike(@NotNull @PathVariable long id, @NotNull @PathVariable long userId) {
         filmService.deleteLike(id, userId);
     }
 
     @GetMapping("/popular")
     public List<Film> getMostPopularFilms(@RequestParam(defaultValue = "10") int count) {
         return filmService.getMostPopularFilms(count);
+    }
+
+    @DeleteMapping(value = "/{filmId}")
+    public void deleteFilm(@NotNull @PathVariable long filmId) {
+        filmService.deleteFilm(filmId);
+    }
+
+    @GetMapping("/search")
+    public List<Film> getFilmsByDirectorOrTitle(@NotNull @RequestParam String query, @NotNull @RequestParam String by) {
+        return filmService.getFilmsByDirectorOrTitle(query, by);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public List<Film> getFilmsByDirectorIdSortedByYearOrLikes(@NotNull @PathVariable int directorId,
+                                                              @NotNull @RequestParam String sortBy) {
+        return filmService.getFilmsByDirectorIdSortedByYearOrLikes(directorId, sortBy);
     }
 }

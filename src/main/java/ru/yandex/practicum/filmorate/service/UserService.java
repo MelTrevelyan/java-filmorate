@@ -6,9 +6,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.UserDoesNotExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
-import ru.yandex.practicum.filmorate.validator.UserValidator;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -18,12 +17,17 @@ import java.util.List;
 @Service
 public class UserService {
 
-    private long nextId = 1;
     private final UserStorage userStorage;
+    private final FilmService filmService;
+    private final EventService eventService;
+
 
     @Autowired
-    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, FilmService filmService,
+                       EventService eventService) {
         this.userStorage = userStorage;
+        this.filmService = filmService;
+        this.eventService = eventService;
     }
 
     public Collection<User> getUsers() {
@@ -38,14 +42,11 @@ public class UserService {
                 throw new ValidationException();
             }
         }
-        UserValidator.validateUser(user);
-        user.setId(getNextId());
         log.info("Добавлен новый пользователь");
         return userStorage.create(user);
     }
 
     public User update(User user) {
-        UserValidator.validateUser(user);
         if (userStorage.findUserById(user.getId()) == null) {
             log.warn("Невозможно обновить пользователя");
             throw new UserDoesNotExistException();
@@ -65,11 +66,15 @@ public class UserService {
 
     public void addFriend(long userId, long friendId) {
         userStorage.addFriend(userId, friendId);
+        Event event = new Event(userId, EventType.FRIEND, EventOperation.ADD, friendId);
+        eventService.addEvent(event);
         log.info("Пользователи с id {} и {} теперь друзья", userId, friendId);
     }
 
     public void removeFromFriends(long userId, long friendId) {
         userStorage.removeFromFriends(userId, friendId);
+        Event event = new Event(userId, EventType.FRIEND, EventOperation.REMOVE, friendId);
+        eventService.addEvent(event);
         log.info("Пользователи с id {} и {} теперь не являются друзьями", userId, friendId);
     }
 
@@ -81,7 +86,12 @@ public class UserService {
         return userStorage.getAllFriends(userId);
     }
 
-    private long getNextId() {
-        return nextId++;
+    public void deleteUser(long userId) {
+        userStorage.deleteUser(userId);
+    }
+
+    public List<Film> getRecommendations(long userId) {
+        findUserById(userId);
+        return filmService.getRecommendations(userId);
     }
 }

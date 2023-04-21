@@ -7,8 +7,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+
 
 @Component("inMemoryFilmStorage")
 public class InMemoryFilmStorage implements FilmStorage {
@@ -40,7 +40,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film findFilmById(Long id) {
+    public Film findFilmById(long id) {
         if (films.containsKey(id)) {
             return films.get(id);
         }
@@ -48,7 +48,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void addLike(Long filmId, Long userId) {
+    public void addLike(long filmId, long userId) {
         Film film = findFilmById(filmId);
         if (film != null && userStorage.findUserById(userId) != null) {
             findFilmById(filmId).getLikes().add(userId);
@@ -56,10 +56,30 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void deleteLike(Long filmId, Long userId) {
+    public void deleteLike(long filmId, long userId) {
         Film film = findFilmById(filmId);
         if (film != null && userStorage.findUserById(userId) != null) {
             film.getLikes().remove(userId);
         }
+    }
+
+    @Override
+    public List<Film> getFilmsByDirectorOrTitle(String query, String director, String title) {
+        return null;
+    }
+
+
+    public void deleteFilm(long filmId) {
+        films.remove(filmId);
+    }
+
+    @Override
+    public List<Film> getFilmsByDirectorIdSortedByYearOrLikes(int id, String sortBy) {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<Film> getRecommendations(long userId) {
+        return null; //inmemory больше не поддерживаем, поэтому просто заглушка
     }
 }

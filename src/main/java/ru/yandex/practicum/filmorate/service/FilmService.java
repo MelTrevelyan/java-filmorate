@@ -5,13 +5,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmDoesNotExistException;
+import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.EventOperation;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.validator.FilmValidator;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -19,11 +23,12 @@ import java.util.stream.Collectors;
 public class FilmService {
 
     private final FilmStorage filmStorage;
-    private long nextId = 1;
+    private final EventService eventService;
 
     @Autowired
-    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage) {
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, EventService eventService) {
         this.filmStorage = filmStorage;
+        this.eventService = eventService;
     }
 
     public Collection<Film> getFilms() {
@@ -31,14 +36,11 @@ public class FilmService {
     }
 
     public Film create(Film film) {
-        FilmValidator.validateFilm(film);
-        film.setId(getNextId());
         log.info("Добавлен новый фильм");
         return filmStorage.create(film);
     }
 
     public Film update(Film film) {
-        FilmValidator.validateFilm(film);
         if (filmStorage.findFilmById(film.getId()) == null) {
             log.warn("Невозможно обновить фильм");
             throw new FilmDoesNotExistException();
@@ -55,13 +57,17 @@ public class FilmService {
         return film;
     }
 
-    public void addLike(Long filmId, Long userId) {
+    public void addLike(long filmId, long userId) {
         filmStorage.addLike(filmId, userId);
+        Event event = new Event(userId, EventType.LIKE, EventOperation.ADD, filmId);
+        eventService.addEvent(event);
         log.info("Пользователь с id {} поставил фильму с id {} лайк", userId, filmId);
     }
 
-    public void deleteLike(Long filmId, Long userId) {
+    public void deleteLike(long filmId, long userId) {
         filmStorage.deleteLike(filmId, userId);
+        Event event = new Event(userId, EventType.LIKE, EventOperation.REMOVE, filmId);
+        eventService.addEvent(event);
         log.info("Лайк пользователя с id {} фильму с id {} удалён", userId, filmId);
     }
 
@@ -72,7 +78,28 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
-    private long getNextId() {
-        return nextId++;
+    public List<Film> getFilmsByDirectorOrTitle(String query, String by) {
+
+        AtomicReference<String> director = new AtomicReference<>("");
+        AtomicReference<String> title = new AtomicReference<>("");
+        Arrays.stream(by.split(",")).forEach(q -> {
+            if (q.trim().equals("director")) director.set("director");
+            if (q.trim().equals("title")) title.set("title");
+        });
+        StringBuilder queryBuilder = new StringBuilder("%");
+        queryBuilder.append(query.toLowerCase()).append("%");
+        return filmStorage.getFilmsByDirectorOrTitle(queryBuilder.toString(), director.get(), title.get());
+    }
+
+    public void deleteFilm(long filmId) {
+        filmStorage.deleteFilm(filmId);
+    }
+
+    public List<Film> getFilmsByDirectorIdSortedByYearOrLikes(int directorId, String sortBy) {
+        return filmStorage.getFilmsByDirectorIdSortedByYearOrLikes(directorId, sortBy);
+    }
+
+    public List<Film> getRecommendations(long userId) {
+        return filmStorage.getRecommendations(userId);
     }
 }
