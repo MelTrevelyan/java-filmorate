@@ -72,6 +72,16 @@
 
 ![filmorate](https://user-images.githubusercontent.com/114815793/233120990-907ca13c-26ba-4127-86b9-fa67352b0fcc.png)
 
+## Инструкция по развёртыванию
+
+Чтобы использовать приложение, необходимо:
+
+1. Склонировать репозиторий: https://github.com/MelTrevelyan/java-filmorate.git
+2. Перейти в консоли в папку проекта: `cd java-filmorate`
+3. Скомпилировать исходные файлы Java командой: `javac *.java`
+
+---
+
 Пример запроса:
 Получение топ-10 названий фильмов по количеству лайков:
 ```sql
@@ -92,6 +102,8 @@ WHERE u.user_id IN (SELECT f.user_second_id
                     FROM friendship AS f
                     WHERE f.user_first_id = 1);
 ```
+--- 
+Отзыв ученика после взаимной проверки ER-диаграммы
 
 Пир-ревью:
 Отличная работа, молодец! 
