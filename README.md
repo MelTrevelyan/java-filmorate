@@ -13,7 +13,7 @@
 - Lombok
 - JUnit
 
-## Фичи
+## Возможности
 
 ### Фильмы
 
@@ -72,13 +72,11 @@
 
 ![filmorate](https://user-images.githubusercontent.com/114815793/233120990-907ca13c-26ba-4127-86b9-fa67352b0fcc.png)
 
-## Инструкция по развёртыванию
+## Запустить сервис можно в IntelliJ IDEA:
 
-Чтобы использовать приложение, необходимо:
+Запустите приложение 
 
-1. Склонировать репозиторий: https://github.com/MelTrevelyan/java-filmorate.git
-2. Перейти в консоли в папку проекта: `cd java-filmorate`
-3. Скомпилировать исходные файлы Java командой: `javac *.java`
+java-filmorate\src\main\java\ru\yandex\practicum\filmorate\FilmorateApplication -> "run"
 
 ---
 
